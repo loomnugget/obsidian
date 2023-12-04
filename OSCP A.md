@@ -3,10 +3,6 @@ initial enumeration
 - -sT: connect scan
 ```
 nmap -sT -A -oN nmap-lab1 192.168.193.141 192.168.193.143-145
-
-gobuster dir -u http://192.168.193.141 -w /usr/share/wordlists/dirb/big.txt
-gobuster dir -u http://192.168.193.141 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
-
 ```
 
 .141
@@ -68,4 +64,22 @@ lsadump::sam
 # Administrator hash - 3c4495bbd678fac8c9d218be4f2bbc7b - cracked: December31 
 
 # TEST
+```
+
+.143
+```
+nmap 192.168.193.143
+# open ports: 21,22,80,81,443,3000,3003,3306,5432
+
+nmap -sT -A -Pn -p 80,81,443 192.168.193.143
+nmap -sT -A -Pn -p 21,22 192.168.193.143
+
+gobuster dir -u http://192.168.193.143 -w /usr/share/wordlists/dirb/big.txt
+gobuster dir -u http://192.168.193.143:81 -w /usr/share/wordlists/dirb/big.txt
+whatweb 192.168.193.143
+whatweb 192.168.193.143:81
+sudo nmap -O 192.168.193.143 --osscan-guess
+
+ftp support@192.168.193.143
+
 ```
