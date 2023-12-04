@@ -76,6 +76,9 @@ nmap -sT -A -Pn -p 21,22 192.168.193.143
 
 gobuster dir -u http://192.168.193.143 -w /usr/share/wordlists/dirb/big.txt
 gobuster dir -u http://192.168.193.143:81 -w /usr/share/wordlists/dirb/big.txt
+# try feroxbuster
+feroxbuster http://192.168.193.143
+
 
 gobuster dir -u http://192.168.193.143:81 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
 
@@ -124,9 +127,8 @@ user: joomla, password: Password@1
 secret: Ee24zIK4cDhJHL4H
 another user: chloe
 
-# no worky
-ssh joomla@192.168.193.144
-ftp joomla@192.168.193.144
-
-nmap -p 80 1000-10000 192.168.193.144
+# ssh as stuart and use secret 
+su chloe # enter password
+sudo -l
+sudo su
 ```

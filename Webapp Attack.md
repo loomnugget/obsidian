@@ -13,6 +13,7 @@ gobuster dir -u 192.168.208.16 -w /usr/share/wordlists/dirb/common.txt -t 5
 
 # API testing
 # create a pattern file
+```
 {GOBUSTER}/v1
 {GOBUSTER}/v2
 gobuster dir -u http://192.168.208.16:5002 -w /usr/share/wordlists/dirb/big.txt -p pattern
@@ -20,6 +21,7 @@ gobuster dir -u http://192.168.208.52:80 -w /usr/share/wordlists/dirb/big.txt -p
 curl -i http://192.168.208.16:5002/users/v1
 gobuster dir -u http://192.168.208.16:5002/users/v1/admin/ -w /usr/share/wordlists/dirb/small.txt
 curl -d '{"password":"fake","username":"admin"}' -H 'Content-Type: application/json'  http://192.168.208.16:5002/users/v1/login
+```
 
 curl -i http://192.168.208.16:5002/books/v1
 
