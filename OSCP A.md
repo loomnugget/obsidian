@@ -71,15 +71,35 @@ lsadump::sam
 nmap 192.168.193.143
 # open ports: 21,22,80,81,443,3000,3003,3306,5432
 
-nmap -sT -A -Pn -p 80,81,443 192.168.193.143
+nmap -sT -A -Pn -p 80,81 192.168.193.143
 nmap -sT -A -Pn -p 21,22 192.168.193.143
 
 gobuster dir -u http://192.168.193.143 -w /usr/share/wordlists/dirb/big.txt
 gobuster dir -u http://192.168.193.143:81 -w /usr/share/wordlists/dirb/big.txt
+
+gobuster dir -u http://192.168.193.143:81 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
+
 whatweb 192.168.193.143
 whatweb 192.168.193.143:81
 sudo nmap -O 192.168.193.143 --osscan-guess
 
+# mysql, ftp and postgres don't work
 ftp support@192.168.193.143
+mysql -u support -p 'Freedom1' -h 192.168.193.143 -P 3306
+psql -h 192.168.193.143 -p 5432 -d postgres -U support
+
+# findings:
+- has pico CMS
+```
+
+.144
+```
+nmap 192.168.193.144
+nmap -sT -A -Pn -p 80 192.168.193.143
+gobuster dir -u http://192.168.193.144 -w /usr/share/wordlists/dirb/big.txt
+# find that it is running joomla CMS
+# also find a git repo that includes a security update
+joomscan -u http://192.168.193.144
+
 
 ```
