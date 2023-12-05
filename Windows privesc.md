@@ -192,6 +192,8 @@ service binary hijacking VM1
 ```
 xfreerdp /u:daveadmin /p:qwertqwertqwert123\!\! /v:192.168.212.220 /w:1200 /h:700
 Get-CimInstance -ClassName win32_service | Select Name,State,PathName | Where-Object {$_.State -like 'Running'}
+
+Get-CimInstance -ClassName win32_service | Select Name,State,PathName
 ```
 
 show permissions (owner and F, RX etc)

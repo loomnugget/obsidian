@@ -300,6 +300,7 @@ sudo tcpdump -i tun0 proto \\icmp
 
 ```
 dir /s flag.txt
+dir /s proof.txt
 ```
 
 
