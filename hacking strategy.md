@@ -65,7 +65,7 @@
 	- check sudo version exploits
 - look for writable files and directories, especially group and pw related and webservers
 - look for user's sudo perms
-- look at interesting programs and their config files
+- look at interesting programs and their config files (unusual SUID)
 - look for internal webservers - always check default admin creds
 - look for setuid binaries and capabilities
 	- see if there are exploits on gtfo bins

