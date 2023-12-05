@@ -23,18 +23,21 @@
 ### Initial enumeration
 - scan common ports on machines in the external network
 - if nothing actionable found, try high ports
+- udp ports
 - fingerprint webservices
 	- make note of http titles as well, could help identify cms/plugins etc
 - run whatweb for CMS identification
 - use gobuster to find directories/paths for web services
 	- also check for files like pdfs
 	- use exiftool to gain more info and pdftotext 
+- do more fuzzing if necessary
 - look for initial foothold
 	- find inputs for sql injection/command injection
 	- find file uploads
 	- find file params for LFI RFI
 	- with fingerprinting/cms info find CVEs for those technologies or CMS vulnerabilities (plugins etc)
 	- check smb, smtp, snmp, ftp
+- searchsploit AND google for services, pprts and exploits
 
 ### Windows privesc
 - check if access to internal network

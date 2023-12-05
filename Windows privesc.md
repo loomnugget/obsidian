@@ -96,7 +96,7 @@ Get-ChildItem -Path C:\xampp -Include *.txt,*.ini -File -Recurse -ErrorAction Si
 Get-ChildItem -Path C:\inetpub -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 type C:\xampp\mysql\bin\my.ini
 type C:\xampp\passwords.txt
-Get-ChildItem -Path C:\Users\damon\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx -File -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path C:\Users\zachary\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx -File -Recurse -ErrorAction SilentlyContinue
 
 Get-ChildItem -Path C:\staging\htdocs -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.conf,*.conf.bak -File -Recurse -ErrorAction SilentlyContinue
 
