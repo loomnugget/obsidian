@@ -40,6 +40,7 @@
 	- with fingerprinting/cms info find CVEs for those technologies or CMS vulnerabilities (plugins etc)
 	- check smb, smtp, snmp, ftp
 - searchsploit AND google for services, pprts and exploits
+- LFI, RFI and directory traversal are all separate things, and are tested separately
 
 ### Windows privesc
 - check if access to internal network
