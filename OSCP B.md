@@ -4,13 +4,15 @@ nmap 192.168.194.147 192.168.194.149-151
 
 .147
 ```
-nmap -sT -A 192.168.194.147
-whatweb 192.168.194.147:8080
-whatweb 192.168.194.147:8000
+nmap -sT -A MS01.oscp.exam
+whatweb MS01.oscp.exam:8080
+whatweb MS01.oscp.exam:8000
 
 # due to the proxy, we cannot do anything with the IP:8080 (400 error), so get the DNS name from the output of nmap (8443 port shows cert dns name) and create a hostfile entry for it
 gobuster dir -u http://MS01.oscp.exam:8080 -w /usr/share/wordlists/dirb/common.txt
-feroxbuster --url http://192.168.194.147:8000
+feroxbuster --url http://MS01.oscp.exam:8000
+
+wfuzz -c -z file,/usr/share/wfuzz/wordlist/general/common.txt --hc 404 http://MS01.oscp.exam/mvc/FUZZ
 
 nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.194.147
 
