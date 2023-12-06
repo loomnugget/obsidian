@@ -90,13 +90,13 @@ ls -Hidden
 
 search for files that may have passwords etc
 ```
-Get-ChildItem -Path C:\windows.old -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path C:\ -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\SQL2019 -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\xampp -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\inetpub -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 type C:\xampp\mysql\bin\my.ini
 type C:\xampp\passwords.txt
-Get-ChildItem -Path C:\windows.old\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.ini -File -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path C:\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.ini,*.kdbx -File -Recurse -ErrorAction SilentlyContinue
 
 Get-ChildItem -Path C:\staging\htdocs -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.conf,*.conf.bak -File -Recurse -ErrorAction SilentlyContinue
 
