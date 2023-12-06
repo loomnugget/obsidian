@@ -159,7 +159,7 @@ ssh -i alfred-id_rsa -p 2222 alfred@192.168.192.201
 ```
 
 ### cracking NTLM
-- sam database: C:\Windows\system32\config\sam
+- sam database: `C:\Windows\system32\config\sam`
 
 ### VM 1
 ```
