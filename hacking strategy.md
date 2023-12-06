@@ -5,6 +5,8 @@
 - windows privesc: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation
 - potatos: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation/roguepotato-and-printspoofer
 - powershell shells: https://book.hacktricks.xyz/generic-methodologies-and-resources/shells/windows#powershell-shells
+- OSCP cheat sheet: https://gitlab.com/lagarian.smith/oscp-cheat-sheet/-/blob/master/OSCP_Notes.md#port-21-ftp
+- windows privesc cheat sheet: https://github.com/evets007/OSCP-Prep-cheatsheet/blob/master/windows-privesc.md
 
 ### helpful scripts/tools
 - Invoke-PowerShellTcp.ps1: https://github.com/samratashok/nishang/blob/master/Shells/Invoke-PowerShellTcp.ps1
