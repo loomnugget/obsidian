@@ -7,6 +7,9 @@
 - powershell shells: https://book.hacktricks.xyz/generic-methodologies-and-resources/shells/windows#powershell-shells
 - OSCP cheat sheet: https://gitlab.com/lagarian.smith/oscp-cheat-sheet/-/blob/master/OSCP_Notes.md#port-21-ftp
 - windows privesc cheat sheet: https://github.com/evets007/OSCP-Prep-cheatsheet/blob/master/windows-privesc.md
+- active directory cheat sheet: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-active-directory.md
+- Generic study guide: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-main.md
+- Abuse kerberos using impacket: https://www.hackingarticles.in/abusing-kerberos-using-impacket/
 
 ### helpful scripts/tools
 - Invoke-PowerShellTcp.ps1: https://github.com/samratashok/nishang/blob/master/Shells/Invoke-PowerShellTcp.ps1
