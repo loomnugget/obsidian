@@ -147,10 +147,16 @@ feroxbuster --url http://192.168.211.149/icons --wordlist /usr/share/seclists/Di
 gobuster dir -u http://192.168.211.149 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
 
 # enumerate snmp
+sudo apt-get install snmp-mibs-downloader
 snmp-check 192.168.211.149 -c public
 snmpwalk -c public -v1 -t 10 192.168.211.149
 snmpwalk -c public -v2c -t 10 192.168.211.149
-snmpwalk -c public -v1 -t 10 192.168.211.149 NET-SNMP-EXTEND-MIB::nsExtendObjectsFull
 
+snmpwalk -c public -v1 -t 10 192.168.211.149 NET-SNMP-EXTEND-MIB::nsExtendObjects
+nmap --script "snmp* and not snmp-brute" 192.168.211.149
+
+hydra -l kiero -P /usr/share/seclists/Passwords/Default-Credentials/default-passwords.txt 192.168.211.149 ftp
+
+hydra -l kiero -P probable-v2-top12000.txt 192.168.211.149 ftp
 
 ```

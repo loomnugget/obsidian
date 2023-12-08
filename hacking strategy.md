@@ -12,6 +12,7 @@
 - Abuse kerberos using impacket: https://www.hackingarticles.in/abusing-kerberos-using-impacket/
 - ippsec videos: https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA
 - SNMP: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp
+- SNMP RCE: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp/snmp-rce
 
 ### helpful scripts/tools
 - Invoke-PowerShellTcp.ps1: https://github.com/samratashok/nishang/blob/master/Shells/Invoke-PowerShellTcp.ps1
