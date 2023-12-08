@@ -202,4 +202,6 @@ sudo nmap -O 192.168.211.150 --osscan-guess
 whatweb http://192.168.211.150:8080
 gobuster dir -u http://192.168.211.150 -w /usr/share/wordlists/dirb/common.txt
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.211.150:8080
+gobuster dir -u http://192.168.211.150:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
+
 ```
