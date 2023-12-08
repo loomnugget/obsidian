@@ -11,6 +11,7 @@
 - Generic study guide: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-main.md
 - Abuse kerberos using impacket: https://www.hackingarticles.in/abusing-kerberos-using-impacket/
 - ippsec videos: https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA
+- SNMP: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp
 
 ### helpful scripts/tools
 - Invoke-PowerShellTcp.ps1: https://github.com/samratashok/nishang/blob/master/Shells/Invoke-PowerShellTcp.ps1

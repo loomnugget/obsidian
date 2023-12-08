@@ -116,9 +116,12 @@ sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r rule
 wget https://github.com/superkojiman/onetwopunch/raw/master/onetwopunch.sh
 nmap -sT -A -p 21,22,80 192.168.211.149
 sudo ./onetwopunch.sh -t lab2/149.txt tcp
-sudo nmap 192.168.211.149 -sU
 
-# 80,21,22 open
+# UDP ports
+sudo nmap 192.168.211.149 -sU -p 1-1000
+sudo nmap -sU --open -p 161 192.168.211.149
+
+# 80,21,22 open, udp 161
 
 # enumerate ftp
 nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.211.149
@@ -132,14 +135,22 @@ hydra -s 21 -C ftp-wordlist.txt 192.168.211.149 ftp
 nmap -p 21 --script="+*ftp* and not brute and not dos and not fuzzer" -vv -oN ftp 192.168.211.149
 
 # enumerate webserver
+nikto -host 192.168.211.149
 sudo nmap -O 192.168.211.149 --osscan-guess
 sudo nmap --script http-enum 192.168.211.149
 whatweb http://192.168.211.149
 gobuster dir -u http://192.168.211.149 -w /usr/share/wordlists/dirb/common.txt
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.211.149 --filter-status=200,301,403
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/apache.txt --url http://192.168.211.149 --filter-status=200,301,403
+feroxbuster --url http://192.168.211.149/icons --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt
 
-# enumerate ssh
+gobuster dir -u http://192.168.211.149 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
+
+# enumerate snmp
+snmp-check 192.168.211.149 -c public
+snmpwalk -c public -v1 -t 10 192.168.211.149
+snmpwalk -c public -v2c -t 10 192.168.211.149
+snmpwalk -c public -v1 -t 10 192.168.211.149 NET-SNMP-EXTEND-MIB::nsExtendObjectsFull
 
 
 ```
