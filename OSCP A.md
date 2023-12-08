@@ -132,6 +132,7 @@ wget https://github.com/DominicBreuker/pspy/releases/download/v1.2.0/pspy64
 # find screen unusual binary from linpeas
 https://www.exploit-db.com/exploits/41154
 https://0xdf.gitlab.io/2020/09/10/htb-haircut.html
+https://github.com/X0RW3LL/XenSpawn
 
 # create exploit files and copy to container root 
 cd /home/kali/lab1
