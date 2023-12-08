@@ -171,25 +171,35 @@ scp -i id_rsa linpeas.sh john@192.168.211.149:/home/john
 uname -a
 # discover 5.9.0-050900-generic and look up "linux kernel 5.9.0"
 # find this: https://www.exploit-db.com/exploits/50808
-
-gcc -o 50808 50808.c
-
-scp -i id_rsa 50808 john@192.168.211.149:/home/john
-
+# end up getting a different script that kind of works - https://raw.githubusercontent.com/Arinerron/CVE-2022-0847-DirtyPipe-Exploit/main/exploit.c
 
 # create exploit files and copy to container root 
 sudo su -
 cd /home/kali/lab2
-cp exp.c /var/lib/machines/xen-test/root/
-
+cp exploit.c /var/lib/machines/xen-test/root/
 
 cd /var/lib/machines/xen-test/root
 sudo systemd-nspawn -M xen-test
 
 # compile exploit in container
 
-gcc -o exp exp.c
+gcc -o exploit exploit.c
 
 # copy back to lab folder
-cp exp /home/kali/lab2/
+cp exploit /home/kali/lab2/
+
+scp -i id_rsa exploit john@192.168.211.149:/home/john
+```
+
+.150
+```
+nmap 192.168.211.150
+nmap -sT -A -p 22,8080 192.168.211.150
+nmap -p 1000-10000 192.168.211.150
+nikto -host 192.168.211.150 -port 8080
+sudo nmap -O 192.168.211.150 --osscan-guess
+
+whatweb http://192.168.211.150:8080
+gobuster dir -u http://192.168.211.150 -w /usr/share/wordlists/dirb/common.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.211.150:8080
 ```
