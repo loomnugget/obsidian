@@ -10,6 +10,7 @@
 - active directory cheat sheet: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-active-directory.md
 - Generic study guide: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-main.md
 - Abuse kerberos using impacket: https://www.hackingarticles.in/abusing-kerberos-using-impacket/
+- ippsec videos: https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA
 
 ### helpful scripts/tools
 - Invoke-PowerShellTcp.ps1: https://github.com/samratashok/nishang/blob/master/Shells/Invoke-PowerShellTcp.ps1
@@ -18,6 +19,7 @@
 - rubeus: https://github.com/r3motecontrol/Ghostpack-CompiledBinaries/blob/master/Rubeus.exe
 - powerview.ps1: https://github.com/PowerShellMafia/PowerSploit/raw/master/Recon/PowerView.ps1
 - enum4linux: https://www.kali.org/tools/enum4linux/
+- onetwopunch: https://github.com/superkojiman/onetwopunch
 
 ### Keep in mind
 - do very thorough enumeration
@@ -44,6 +46,7 @@
 	- check smb, smtp, snmp, ftp
 - searchsploit AND google for services, pprts and exploits
 - LFI, RFI and directory traversal are all separate things, and are tested separately
+- check for SMB hash attack via url params
 
 ### Windows privesc
 - check if access to internal network
