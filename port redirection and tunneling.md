@@ -325,9 +325,11 @@ netsh interface portproxy show all
 sudo nmap -sS 192.168.195.64 -Pn -n -p2222
 
 # if firewall is blocking, we need to add a rule to allow our connection
-netsh advfirewall firewall add rule name="port_forward_ssh_2222" protocol=TCP dir=in localip=192.168.195.64 localport=2222 action=allow
+```
+netsh advfirewall firewall add rule name="test" protocol=TCP dir=in localip=192.168.45.234 localport=2345 action=allow
 ./netsh_exercise_client.bin -i 192.168.195.64
 ./netsh_exercise_client.bin -i 192.168.195.64 -p 2222
+```
 
 
 
