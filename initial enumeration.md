@@ -9,7 +9,7 @@ intitle:"index of" "parent directory"
 ```
 - netcraft - https://sitereport.netcraft.com/?url=http://www.megacorpone.com
 - gitrob/gitleaks
-- shodan - google for devices
+- shodan - google for devices - Kali
 ```
 hostname:megacorpone.com
 ```

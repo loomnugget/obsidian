@@ -193,15 +193,18 @@ scp -i id_rsa exploit john@192.168.211.149:/home/john
 
 .150
 ```
-nmap 192.168.211.150
-nmap -sT -A -p 22,8080 192.168.211.150
+nmap 192.168.190.150
+nmap -sT -A -p 22,8080 192.168.190.150
 nmap -p 1000-10000 192.168.211.150
 nikto -host 192.168.211.150 -port 8080
 sudo nmap -O 192.168.211.150 --osscan-guess
+sudo nmap -sU --open -p 161 192.168.190.150
+sudo nmap -sV -p 8080 --script "vuln" 192.168.190.150
 
 whatweb http://192.168.211.150:8080
 gobuster dir -u http://192.168.211.150 -w /usr/share/wordlists/dirb/common.txt
-feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.211.150:8080
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.190.150:8080/search
 gobuster dir -u http://192.168.211.150:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
 
+ssh -i id_rsa john@192.168.190.150
 ```
