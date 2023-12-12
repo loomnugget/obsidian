@@ -111,6 +111,7 @@ xfreerdp /u:steve /p:securityIsNotAnOption++++++ /v:192.168.195.220 /w:1200 /h:7
 runas allows us to run programs as a different user
 ```
 runas /user:backupadmin cmd
+runas /user:Administrator cmd
 runas /user:offsec cmd
 Get-ChildItem -Path C:\Users\steve\ -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx -File -Recurse -ErrorAction SilentlyContinue
 ```
