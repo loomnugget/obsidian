@@ -192,5 +192,27 @@ sudo nmap -sV -p 8080 --script "vuln" 192.168.230.156
 nikto -host 192.168.230.156 -port 8080
 whatweb http://192.168.230.156:8080
 gobuster dir -u http://192.168.230.156:8080 -w /usr/share/wordlists/dirb/common.txt
-feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.230.156:8080
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.230.156:8080 --dont-scan /phpmyadmin/*
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.230.156 --dont-scan /phpmyadmin/*
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.230.156:8083 --dont-scan /phpmyadmin/*
+gobuster dir -u http://192.168.230.156:8080 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/directory-list-lowercase-2.3-big.txt --url http://192.168.230.156:8080 --dont-scan /phpmyadmin/*
+
+# there's a lot going on here
+- PHPmyadmin on 8080/phpmyadmin
+- VestaCP page on https://192.168.230.156:8083/login with login form - https://www.exploit-db.com/exploits/48294 looks promising but we need creds
+- webmail and roundcube directories on 8080
+
+# enumerate ftp
+nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.230.156
+
+hydra -C /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt 192.168.230.156 ftp -s 21
+
+# enumerate snmp
+sudo nmap -sU --open -p 161 192.168.230.156
+snmp-check 192.168.230.156 -c public
+snmpwalk -c public -v1 -t 10 192.168.230.156 NET-SNMP-EXTEND-MIB::nsExtendObjects
+# find password jack:3PUKsX98BMupBiCf
+
+
 ```
