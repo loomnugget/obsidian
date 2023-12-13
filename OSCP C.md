@@ -254,7 +254,7 @@ nc -nvlp 1234
 
 .157 privesc
 ```
-# looks like it's vulnerable to dirty pipe based on kernel version
+# looks like it's vulnerable to dirty pipe based on kernel version - this is not working though
 # create exploit files and copy to container root 
 sudo su -
 cd /home/kali/lab3
