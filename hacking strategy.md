@@ -86,6 +86,10 @@
 - check for apparmor
 - run pspy
 - check log files for creds/interesting files
+- check for dirty pipe
+- check sudo version for exploit
+- test su and sudo -l
+- check for tar wildcard exploit
 
 ### Pivoting
 - use found credentials
