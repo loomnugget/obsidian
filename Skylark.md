@@ -12,7 +12,7 @@ sudo nmap -sU --open -p 161 192.168.240.250
 # only ports open (no snmp): 135,139,445,3389,5040,49664-49670
 ```
 
-.220 - need creds from another machine
+.220 - (Skylark Partner Portal)
 ```
 nmap 192.168.240.220
 
@@ -36,7 +36,7 @@ hydra -L /usr/share/seclists/Usernames/xato-net-10-million-usernames.txt -P /usr
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.240.220 
 ```
 
-.221
+.221 (austin02.SKYLARK.com)
 ```
 nmap 192.168.240.221
 nmap -sT -A -p 80,443 192.168.240.221
@@ -53,8 +53,9 @@ smbclient -L 192.168.240.221
 smbmap -H 192.168.240.221
 
 # enumerate webserver
-feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.240.221 --dont-scan /aspnet_client
 nikto -host 192.168.240.221 -port 80
 whatweb http://192.168.240.221:80
 gobuster dir -u http://192.168.240.221:80 -w /usr/share/wordlists/dirb/common.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-small-words.txt --url http://192.168.240.221 --dont-scan /aspnet_client,/Aspnet_client,/Aspnet_Client,/aspnet_Client,/ASPNET_CLIENT
+
 ```
