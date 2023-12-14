@@ -84,6 +84,8 @@
 - look for setuid binaries and capabilities
 	- see if there are exploits on gtfo bins
 - check for apparmor
+- run pspy
+- check log files for creds/interesting files
 
 ### Pivoting
 - use found credentials
