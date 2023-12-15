@@ -57,5 +57,27 @@ nikto -host 192.168.240.221 -port 80
 whatweb http://192.168.240.221:80
 gobuster dir -u http://192.168.240.221:80 -w /usr/share/wordlists/dirb/common.txt
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-small-words.txt --url http://192.168.240.221 --dont-scan /aspnet_client,/Aspnet_client,/Aspnet_Client,/aspnet_Client,/ASPNET_CLIENT
+```
+
+.222
+```
+nmap 192.168.213.222
+sudo nmap -sU --open -p 161 192.168.213.222
+
+# ports 135,139,445,2994(veritas-vis2),5985(wsman),47001(winrm),49664-49670
+
+# enumerate smb - we need a password to do anything
+enum4linux 192.168.213.222
+nmap -v -p 139,445 --script smb-os-discovery 192.168.213.222
+smbclient -L 192.168.213.222
+smbmap -H 192.168.213.222
+```
+
+.223
+```
+nmap 192.168.213.223
+sudo nmap -sU --open -p 161 192.168.213.223
+
+# 80,443 show up, but are closed, 161 open
 
 ```
