@@ -126,4 +126,6 @@ netstat -ltnp | grep -w ':80'
 # find db creds
 db=oscdb, user=oscuser, password=7NVLVTDGJ38HM2TQ
 # local.txt is in /root
+
+searchsploit -m 51263
 ```
