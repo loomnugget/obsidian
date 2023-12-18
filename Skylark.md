@@ -56,10 +56,18 @@ smbmap -H 192.168.240.221
 
 # enumerate webserver
 nikto -host 192.168.248.221 -port 80
-whatweb http://192.168.240.221:80
+whatweb http://192.168.248.221:80
 gobuster dir -u http://192.168.240.221:80 -w /usr/share/wordlists/dirb/common.txt
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-Filenames.txt --url http://192.168.248.221 --dont-scan /aspnet_client,/Aspnet_client,/Aspnet_Client,/aspnet_Client,/ASPNET_CLIENT
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-Filenames.txt --url http://192.168.248.225:8090/backend/default
+
+# login to webserver on https://192.168.248.221/RDWeb with creds from the pdf on 225
+SKYLARK\kiosk - XEwUS^9R2Gwt8O914
+
+xfreerdp cpub-SkylarkStatus-QuickSessionCollection-CmsRdsh.rdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.248.221
+
+xfreerdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.248.221
+
 ```
 
 .222
