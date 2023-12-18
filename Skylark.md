@@ -40,6 +40,7 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-wor
 ```
 nmap 192.168.240.221
 nmap -sT -A -p 80,443 192.168.248.221
+sudo nmap -sU --open -p 161 192.168.248.221
 sudo nmap -p- -Pn 192.168.248.221 -sS -T 5 --verbose
 # port 80,443,135,139,445,3387,5504,5985(wsman) open
 # also port 47001,49664,49665,49666,49667,49668,49670-75,49680
@@ -54,10 +55,11 @@ smbclient -L 192.168.240.221
 smbmap -H 192.168.240.221
 
 # enumerate webserver
-nikto -host 192.168.240.221 -port 80
+nikto -host 192.168.248.221 -port 80
 whatweb http://192.168.240.221:80
 gobuster dir -u http://192.168.240.221:80 -w /usr/share/wordlists/dirb/common.txt
-feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-small-words.txt --url http://192.168.240.221 --dont-scan /aspnet_client,/Aspnet_client,/Aspnet_Client,/aspnet_Client,/ASPNET_CLIENT
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-Filenames.txt --url http://192.168.248.221 --dont-scan /aspnet_client,/Aspnet_client,/Aspnet_Client,/aspnet_Client,/ASPNET_CLIENT
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-Filenames.txt --url http://192.168.248.225:8090/backend/default
 ```
 
 .222
@@ -282,4 +284,18 @@ https://github.com/rapid7/metasploit-framework/blob/master/documentation/modules
 /usr/lib/tmpfiles.d/vsftpd.conf
 /usr/share/nginx
 etc/nginx/nginx.conf
+/etc/php/7.4/cli/php.ini
+/etc/nginx/
+
+# try to find passwords
+https://juggernaut-sec.com/password-hunting-lpe/
+
+/d:skylark /u:kiosk /p:XEwUS^9R2Gwt8O914 
+# as it turns out the password we need is right in front of us
+http://192.168.248.225:8090/backend/default/uploads/user-guide-rdweb.pdf
+
+grep --color=auto -rnw -iIe "PASSW\|PASSWD\|PASSWORD\|PWD" --color=always 2>/dev/null
+grep --color=auto -rnw '/' -iIe "kiosk" --color=always 2>/dev/null
+
+find . -type f -iname '*.pdf'
 ```
