@@ -541,11 +541,17 @@ install ligolo - https://github.com/nicocha30/ligolo-ng
 ```
 # helpful article (includes double pivot) - https://4pfsec.com/ligolo
 
+# windows agent
 wget https://github.com/nicocha30/ligolo-ng/releases/download/v0.4.4/ligolo-ng_agent_0.4.4_windows_amd64.zip
 unzip ligolo-ng_agent_0.4.4_windows_amd64.zip
 
+# linux proxy
 wget https://github.com/nicocha30/ligolo-ng/releases/download/v0.4.4/ligolo-ng_proxy_0.4.4_linux_amd64.tar.gz
 tar -xzvf ligolo-ng_proxy_0.4.4_linux_amd64.tar.g
+
+# linux agent
+wget https://github.com/nicocha30/ligolo-ng/releases/download/v0.4.4/ligolo-ng_agent_0.4.4_linux_amd64.tar.gz
+tar -xzvf ligolo-ng_agent_0.4.4_linux_amd64.tar.g
 
 # from kali
 sudo ip tuntap add user kali mode tun ligolo

