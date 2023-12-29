@@ -767,8 +767,25 @@ FTP credentials for umbraco web application upgrade:
 ftp_jp
 ~be<3@6fe1Z:2e8
 
+Get-ChildItem -Path C:\Users\ -Recurse | Select-String -Pattern 'j.jamison' -CaseSensitive
+
+[auth_info_0]
+username=l.nguyen
+userid=l.nguyen
+passwd=ChangeMePlease__XMPPTest
+
+[auth_info_1]
+username=j.jameson
+userid=j.jameson
+passwd=ChangeMePlease__XMPPTest
+
+[auth_info_2]
+username=j.jones
+userid=j.jones
+passwd=ChangeMePlease__XMPPTest
 ```
 
+```
 .223 (milan) (standalone)
 ```bash
 nmap 192.168.213.223
@@ -909,7 +926,25 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-wor
 http 192.168.194.224 3128 ext_acc DoNotShare!SkyLarkLegacyInternal2008
 # nmap with st
 
+# port 22 80 443
 sudo proxychains nmap -sT -A 172.16.124.32
+
+```
+
+.30
+```bash
+# port 22, 3190
+
+```
+
+.32
+```bash
+# port 80
+
+sudo proxychains nmap -sT -A -p 80 172.16.124.32
+https://172.16.124.32/sipxconfig/app
+
+# access webpage by setting firefox proxy to HTTP 192.168.194.224 3128 and nothing for socks
 ```
 
 .225 (singapore) (standalone)
