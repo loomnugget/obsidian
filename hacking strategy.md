@@ -1,21 +1,12 @@
 ### study guides
 - TJnull study guide: https://www.netsecfocus.com/oscp/2021/05/06/The_Journey_to_Try_Harder-_TJnull-s_Preparation_Guide_for_PEN-200_PWK_OSCP_2.0.html#section-17-port-redirection-and-pivoting
-- crackmapexec: https://cheatsheet.haax.fr/windows-systems/exploitation/crackmapexec/
-- impacket: https://tools.thehacker.recipes/impacket
-- windows privesc: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation
-- potatos: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation/roguepotato-and-printspoofer
-- powershell shells: https://book.hacktricks.xyz/generic-methodologies-and-resources/shells/windows#powershell-shells
+- Awesome cheat sheet: https://www.linkedin.com/pulse/muhammad-nomans-oscp-journey-comprehensive-review-110-noman-khalid-9ksgf/
+- OSCP general cheat sheet (ok): https://github.com/akenofu/OSCP-Cheat-Sheet
 - OSCP cheat sheet: https://gitlab.com/lagarian.smith/oscp-cheat-sheet/-/blob/master/OSCP_Notes.md#port-21-ftp
-- windows privesc cheat sheet: https://github.com/evets007/OSCP-Prep-cheatsheet/blob/master/windows-privesc.md
-- active directory cheat sheet: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-active-directory.md
 - Generic study guide: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-main.md
-- Abuse kerberos using impacket: https://www.hackingarticles.in/abusing-kerberos-using-impacket/
 - ippsec videos: https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA
-- SNMP: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp
-- SNMP RCE: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp/snmp-rce
-- Awesome port list: https://github.com/dashagriiva/OSCP-Prep-1/blob/master/ServicesPortsList.txt - also this guy has other cheat sheets
-- Cracking VNC: https://www.hackingarticles.in/password-crackingvnc/
-- 
+- Report template: https://gitlab.com/lagarian.smith/oscp-cheat-sheet/-/blob/master/OSCP-exam-report-template_whoisflynn_v3.2.md?ref_type=heads
+- Cheatsheet (includes important file locations): https://github.com/saisathvik1/OSCP-Cheatsheet
 
 ### helpful scripts/tools
 - Invoke-PowerShellTcp.ps1: https://github.com/samratashok/nishang/blob/master/Shells/Invoke-PowerShellTcp.ps1
@@ -25,6 +16,44 @@
 - powerview.ps1: https://github.com/PowerShellMafia/PowerSploit/raw/master/Recon/PowerView.ps1
 - enum4linux: https://www.kali.org/tools/enum4linux/
 - onetwopunch: https://github.com/superkojiman/onetwopunch
+### enumeration
+- SNMP: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp
+- SNMP RCE: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp/snmp-rce
+- Awesome port list: https://github.com/dashagriiva/OSCP-Prep-1/blob/master/ServicesPortsList.txt - also this guy has other cheat sheets
+- pentesting SNMP: https://book.hacktricks.xyz/network-services-pentesting/pentesting-snmp#modifying-snmp-values
+### password cracking
+- Cracking VNC: https://www.hackingarticles.in/password-crackingvnc/
+- hashcat modes: https://hashcat.net/wiki/doku.php?id=hashcat
+### wordlists
+- https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/2023-200_most_used_passwords.txt
+- Rockyou (link downloads): https://github.com/brannondorsey/naive-hashcat/releases/download/data/rockyou.txt
+- Fasttrack: https://raw.githubusercontent.com/drtychai/wordlists/master/fasttrack.txt
+### shells
+- reverse shell cheatsheet: https://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet
+- reverse shells cheatsheet: https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Reverse%20Shell%20Cheatsheet.md
+- powershell shells: https://book.hacktricks.xyz/generic-methodologies-and-resources/shells/windows#powershell-shells
+### pivoting
+- Ligolo (includes double pivot) https://4pfsec.com/ligolo
+- Pass the hash: https://www.hackingarticles.in/lateral-movement-pass-the-hash-attack/
+- crackmapexec cheat sheet: https://cheatsheet.haax.fr/windows-systems/exploitation/crackmapexec/
+- Port forwarding cheat sheet: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-port-fowarding.md
+### linux privesc
+- Socket command injection: https://book.hacktricks.xyz/linux-hardening/privilege-escalation/socket-command-injection
+- linux privesc cheat sheet: https://sushant747.gitbooks.io/total-oscp-guide/content/privilege_escalation_-_linux.html
+- GTFOBins: https://gtfobins.github.io/
+### windows privesc
+- Best cheat sheet: https://sushant747.gitbooks.io/total-oscp-guide/content/cmd.html
+- Windows privesc: https://github.com/evets007/OSCP-Prep-cheatsheet/blob/master/windows-privesc.md
+-  Windows privesc cheat sheet: https://rednode.com/privilege-escalation/windows-privilege-escalation-cheat-sheet/
+ - windows privesc cheat sheet: https://github.com/evets007/OSCP-Prep-cheatsheet/blob/master/windows-privesc.md
+ - windows privesc: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation
+ - potatoes: https://book.hacktricks.xyz/windows-hardening/windows-local-privilege-escalation/roguepotato-and-printspoofer
+ - DLL hijacking: https://notchxor.github.io/oscp-notes/4-win-privesc/6-dll-hijacking/
+- Abuse kerberos using impacket: https://www.hackingarticles.in/abusing-kerberos-using-impacket/
+- crackmapexec: https://cheatsheet.haax.fr/windows-systems/exploitation/crackmapexec/
+- impacket: https://tools.thehacker.recipes/impacket
+### active directory
+- active directory cheat sheet: https://github.com/brianlam38/OSCP-2022/blob/main/cheatsheet-active-directory.md
 
 ### Keep in mind
 - do very thorough enumeration
@@ -33,16 +62,32 @@
 - check for activedirectory info
 
 ### Initial enumeration
-- scan common ports on machines in the external network
-- if nothing actionable found, try high ports
-- udp ports
+- scan common ports on machines in the external network, `-p-` for all ports, also scan UDP
+```bash
+nmap 192.168.248.225
+sudo nmap -sU --open -p 161 192.168.248.225
+sudo nmap -p- -Pn 192.168.248.225 -sS -T 5 --verbose
+nmap -sT -A -p 80,8090 192.168.248.225
+```
 - fingerprint webservices
 	- make note of http titles as well, could help identify cms/plugins etc
+```
+nikto -host 192.168.248.225 -port 8090
+sudo nmap -sV -p 8090 --script "vuln" 192.168.248.225
+```
 - run whatweb for CMS identification
-- use gobuster to find directories/paths for web services
+```bash
+whatweb 192.168.248.225:8090
+```
+- use gobuster/feroxbuster to find directories/paths for web services
 	- also check for files like pdfs
 	- use exiftool to gain more info and pdftotext 
-- do more fuzzing if necessary
+	- do more fuzzing if necessary
+```
+gobuster dir -u http://192.168.248.225:8090 -w /usr/share/wordlists/dirb/big.txt
+feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.248.225:8090
+exiftool -a -u info.pdf
+```
 - look for initial foothold
 	- find inputs for sql injection/command injection
 	- find file uploads
