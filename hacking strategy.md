@@ -7,7 +7,6 @@
 - ippsec videos: https://www.youtube.com/channel/UCa6eh7gCkpPo5XXUDfygQQA
 - Report template: https://gitlab.com/lagarian.smith/oscp-cheat-sheet/-/blob/master/OSCP-exam-report-template_whoisflynn_v3.2.md?ref_type=heads
 - Cheatsheet (includes important file locations): https://github.com/saisathvik1/OSCP-Cheatsheet
-
 ### helpful scripts/tools
 - Invoke-PowerShellTcp.ps1: https://github.com/samratashok/nishang/blob/master/Shells/Invoke-PowerShellTcp.ps1
 - sharphound.ps1: https://github.com/BloodHoundAD/BloodHound/blob/master/Collectors/SharpHound.ps1
@@ -86,7 +85,7 @@ whatweb 192.168.248.225:8090
 	- also check for files like pdfs
 	- use exiftool to gain more info and pdftotext 
 	- do more fuzzing if necessary
-```
+```bash
 gobuster dir -u http://192.168.248.225:8090 -w /usr/share/wordlists/dirb/big.txt
 feroxbuster --wordlist /usr/share/seclists/Discovery/Web-Content/raft-medium-words.txt --url http://192.168.248.225:8090
 
